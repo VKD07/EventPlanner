@@ -43,34 +43,26 @@ export async function getTeamsAndMembersByEventID(id) {
 }
 
 export async function addMemberIntoTeam(teamId, memberId) {
-  const res = await fetch(`${API_URL}/add-member`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },  
-    body: JSON.stringify({
-      teamId: teamId,
-      memberId: memberId,
-    }),
-  });  
+
+  const { error } = await supabase.from("team_members").insert({teamID: teamId, memberID: memberId});
+
+  if(error){
+    throw new Error("Failed to add member into team in Supabase: " + error.message);
+  }
 }
 
 export async function removeMemberFromTeam(teamId, memberId) {
-  const res = await fetch(`${API_URL}/remove-member`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },  
-    body: JSON.stringify({
-      teamId: teamId,
-      memberId: memberId,
-    }),
-  });  
+  const { error } = await supabase.from("team_members").delete().eq("teamID", teamId).eq("memberID", memberId);
+
+  if(error){
+    throw new Error("Failed to remove member from team in Supabase: " + error.message);
+  }
 }
 
 export async function updateTeamName(teamId, teamName) {
-  const res = await fetch(`${API_URL}/update-team-name`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },  
-    body: JSON.stringify({
-      teamId: teamId,
-      teamName: teamName,
-    }),
-  });  
+  const { error } = await supabase.from("teams").update({name: teamName}).eq("id", teamId);
+
+  if(error){
+    throw new Error("Failed to update team name in Supabase: " + error.message);
+  }
 }

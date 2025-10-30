@@ -20,11 +20,12 @@ export async function getMembersById(id) {
 }
 
 export async function getAllMembers(){
-  const res = await fetch(API_URL);
-  if(!res.ok){
-    throw new Error("Failed to get all members")
+  const {data, error} = await supabase.from("members").select("*");
+  
+  if(error){
+    throw new Error("Failed to fetch members from Supabase: " + error.message);
   }
-  return res.json();
+  return data;
 }
 
 export async function getAllMembersWithSkillsAndRoles(){
