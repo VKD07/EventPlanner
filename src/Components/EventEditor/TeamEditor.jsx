@@ -1,22 +1,26 @@
+import { useMutation } from "@tanstack/react-query";
 import {
   useAddMemberIntoTeam,
   useRemoveMemberFromTeam,
   useUpdateTeamName,
+  useDeleteTeam,
 } from "../../hooks/useTeams";
 import MembersDialogs from "../Dialogs/MembersDialogs";
 import TeamEditorMember from "./TeamEditorMember";
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 
 const TeamEditor = ({ teamID, teamName, members }) => {
   const [initTeamName, setTeamName] = useState(teamName);
 
+  
   useEffect(() => {
     setTeamName(teamName);
-  }, [teamName]); // ✅ ensures state syncs when data refetches
-
+  }, [teamName]);
+  
   const addMemberMutation = useAddMemberIntoTeam();
   const removeMemberMutation = useRemoveMemberFromTeam();
   const teamNameMutation = useUpdateTeamName();
+  const deletTeamMutation = useDeleteTeam();
 
   function onSelectMember(member) {
     addMemberMutation.mutate(
@@ -38,7 +42,7 @@ const TeamEditor = ({ teamID, teamName, members }) => {
     );
   }
 
-  //FIX THIS WHEN YOU UNBLUR AN INPUT IT ALTERS THE MEMEBERS
+
   function handleTeamNameChange() {
     teamNameMutation.mutate(
       { team_id: teamID, team_name: initTeamName },
@@ -47,6 +51,13 @@ const TeamEditor = ({ teamID, teamName, members }) => {
         onError: (err) => console.error("❌ Error updating team name:", err),
       }
     );
+  }
+
+  function onDeleteTeam() {
+    deletTeamMutation.mutate(teamID, {
+      onSuccess: () => console.log("✅ Team deleted successfully!"),
+      onError: (err) => console.error("❌ Error deleting team:", err),
+    });
   }
 
   function handleOnChange(e) {
@@ -70,7 +81,7 @@ const TeamEditor = ({ teamID, teamName, members }) => {
         {members && members.length > 0 ? (
           members.map((member) => (
             <TeamEditorMember
-              key={member.member_id || member.id} // ✅ stable key
+              key={member.member_id || member.id}
               member={member}
               onRemoveName={onRemoveName}
             />
@@ -88,7 +99,7 @@ const TeamEditor = ({ teamID, teamName, members }) => {
           onSelectMember={onSelectMember}
           buttonStyle={"bg-amber-600 rounded p-2 hover:bg-amber-900"}
         />
-        <button className="bg-amber-600 rounded p-2 hover:bg-amber-900">
+        <button onClick={onDeleteTeam} className="bg-amber-600 rounded p-2 hover:bg-amber-900">
           DELETE
         </button>
       </div>

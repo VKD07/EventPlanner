@@ -6,6 +6,8 @@ import {
   addMemberIntoTeam,
   removeMemberFromTeam,
   updateTeamName,
+  createTeamForEvent,
+  deleteTeam,
 } from "../api/teams.js";
 
 export function useTeams() {
@@ -68,6 +70,31 @@ export function useUpdateTeamName() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: ["teams", "byEvent", variables.team_id],
+      });
+      queryClient.invalidateQueries({ queryKey: ["teams", "byEvent"] });
+    },
+  });
+}
+
+export function useCreateNewTeamForEvent() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: createTeamForEvent,
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["teams", "byEvent", variables.eventID],
+      });
+    },
+  });
+}
+
+export function useDeleteTeam() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (team_id) => deleteTeam(team_id),
+    onSuccess: (_, team_id) => {
+      queryClient.invalidateQueries({
+        queryKey: ["teams", "byEvent", team_id],
       });
       queryClient.invalidateQueries({ queryKey: ["teams", "byEvent"] });
     },

@@ -1,19 +1,20 @@
 import { useParams } from "react-router-dom";
-import { useEventsContext } from "../../Context/EventDataContext";
 import CustomizedEventFlow from "./CustomizedEventFlow";
 import { useEvent } from "../../hooks/useEvents";
-import { useGetTeamAndMembersByEventID } from "../../hooks/useTeams";
+import {
+  useGetTeamAndMembersByEventID,
+  useCreateNewTeamForEvent,
+} from "../../hooks/useTeams";
 import TeamEditor from "./TeamEditor";
 import { useMemo } from "react";
 
 const EventEditor = () => {
   const { eventId } = useParams();
 
-  const { updateEvent } = useEventsContext();
-
   const { data: events, isLoading } = useEvent();
 
   const { data: teamsData } = useGetTeamAndMembersByEventID(eventId);
+  const createTeamForEvent = useCreateNewTeamForEvent();
 
   const groupedTeams = useMemo(() => {
     if (!teamsData) return [];
@@ -51,22 +52,13 @@ const EventEditor = () => {
   const selectedEvent = events.find((event) => event.id === eventId);
 
   function onAddTeam() {
-    const newTeam = {
-      id: crypto.randomUUID(),
-      name: "New Team",
-      members: [],
-    };
+    createTeamForEvent.mutate({ eventID: eventId, teamName: "New Team" });
 
-    const updatedEvent = {
-      ...selectedEvent,
-      teams: [...selectedEvent.teams, newTeam],
-    };
-    updateEvent(updatedEvent);
   }
 
   return (
-    <div className="flex flex-col flex-wrap gap-5 mt-20 lg:grid portrait:grid-cols-[25%_55%_15%] landscape:grid-cols-[25%_55%_17%]">
-      <div className="bg-amber-200 rounded h-[300px]">Library Elements</div>
+    <div className="flex flex-col flex-wrap gap-5 mt-20 lg:grid portrait:grid-cols-[70%_15%] landscape:grid-cols-[70%_17%]">
+      {/* <div className="bg-amber-200 rounded h-[300px]">Library Elements</div> */}
 
       <CustomizedEventFlow selectedEvent={selectedEvent} />
 

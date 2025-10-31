@@ -1,111 +1,54 @@
-import React, { useRef, forwardRef } from "react";
+import React from "react";
 import CustomizedAgenda from "./CustomizedAgenda";
 import { useNavigate } from "react-router-dom";
 import { useEventsContext } from "../../Context/EventDataContext";
 import {
-  DndContext,
-  closestCenter,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
-import {
-  SortableContext,
-  useSortable,
-  arrayMove,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import {
-  restrictToVerticalAxis,
-  restrictToParentElement,
-} from "@dnd-kit/modifiers";
-import { CSS } from "@dnd-kit/utilities";
-import { useGetEventFlowByID } from "../../hooks/useEventFlow";
-
-const SortableAgenda = React.memo(
-  forwardRef(function SortableAgenda({ agenda, onDeletAgenda }, ref) {
-    const id = String(agenda.id);
-    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
-    const style = { transform: CSS.Transform.toString(transform), transition };
-
-    return (
-      <div
-        ref={setNodeRef}
-        style={style}
-        {...attributes}
-        className={`flex items-start gap-2 portrait:w-131 will-change-transform ${isDragging ? "opacity-80" : ""}`}
-      >
-        <div className="flex-1">
-          <CustomizedAgenda ref={ref} agenda={agenda} onDelete={onDeletAgenda} />
-        </div>
-        <button
-          type="button"
-          aria-label="Drag to reorder"
-          {...listeners}
-          className="ml-auto p-2 text-2xl mt-1 font-bold text-gray-600 rounded hover:text-black cursor-grab active:cursor-grabbing select-none touch-none"
-          title="Drag to reorder"
-        >
-          ≡
-        </button>
-      </div>
-    );
-  })
-);
+  useGetEventFlowByID,
+  useAddNewAgendaItem,
+  useDeleteAgendaItem,
+} from "../../hooks/useEventFlow";
 
 const CustomizedEventFlow = ({ selectedEvent }) => {
   const navigate = useNavigate();
-  const { updateEvent } = useEventsContext();
-  const agendaRefs = useRef({});
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
+  const { data: eventsFlowData } = useGetEventFlowByID(selectedEvent.id);
+  const [eventsFlow, setEventsFlow] = React.useState([]);
+  const addAgendaItemMutation = useAddNewAgendaItem();
+  const deleteAgendaItemMutation = useDeleteAgendaItem();
 
-  const {data:eventsFlow} = useGetEventFlowByID(selectedEvent.id);
+  React.useEffect(() => {
+    if (eventsFlowData)
+      setEventsFlow(
+        [...eventsFlowData].sort(
+          (a, b) => a.time.localeCompare(b.time)
+        )
+      );
+  }, [eventsFlowData]);
 
   const addAgenda = () => {
-    const prevTime = selectedEvent.eventFlow?.at(-1)?.time ?? "00:00";
-    const newAgenda = {
-      id: crypto.randomUUID(),
-      segment: "New Segment",
-      leader: "Leader Name",
-      time: prevTime,
-    };
-    const updatedEvent = { ...selectedEvent, eventFlow: [...selectedEvent.eventFlow, newAgenda] };
-    updateEvent(updatedEvent);
+    const prevTime = eventsFlowData?.at(-1)?.time ?? "00:00";
+    addAgendaItemMutation.mutate(
+      {
+        eventID: selectedEvent.id,
+        time: prevTime,
+        segment: "New Segment",
+        leaderID: null,
+      },
+      {
+        onSuccess: () => console.log("✅ Agenda item added successfully!"),
+        onError: (err) => console.error("❌ Error adding agenda item:", err),
+      }
+    );
   };
 
-  
-
   const deleteAgenda = (deletedAgenda) => {
-    const updatedEvent = {
-      ...selectedEvent,
-      eventFlow: selectedEvent.eventFlow?.filter((agenda) => agenda.id !== deletedAgenda.id),
-    };
-    updateEvent(updatedEvent);
+    deleteAgendaItemMutation.mutate(deletedAgenda.id, {
+      onSuccess: () => console.log("✅ Agenda item deleted successfully!"),
+      onError: (err) => console.error("❌ Error deleting agenda item:", err),
+    });
   };
 
   const handleGoBackClick = () => {
-    const updatedFlow = selectedEvent.eventFlow?.map((agenda) => {
-      const ref = agendaRefs.current[agenda.id];
-      return ref?.getValues ? ref.getValues() : agenda;
-    });
-    updateEvent({ ...selectedEvent, eventFlow: updatedFlow });
     navigate("/");
-  };
-
-  const handleDragStart = () => {
-    if (document.activeElement && document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur();
-    }
-  };
-
-  const handleDragEnd = (event) => {
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
-    const flow = selectedEvent.eventFlow;
-    const from = flow.findIndex((i) => String(i.id) === String(active.id));
-    const to = flow.findIndex((i) => String(i.id) === String(over.id));
-    if (from < 0 || to < 0) return;
-    const reordered = arrayMove(flow, from, to);
-    updateEvent({ ...selectedEvent, eventFlow: reordered });
   };
 
   return (
@@ -122,42 +65,21 @@ const CustomizedEventFlow = ({ selectedEvent }) => {
           Go Back
         </button>
       </div>
+
       <div>
-
-
         <span className="font-bold">Event Flow:</span>
-        {!eventsFlow ? (
+        {!eventsFlow?.length ? (
           <p className="text-sm text-gray-600">No agenda items yet.</p>
         ) : (
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            modifiers={[restrictToVerticalAxis, restrictToParentElement]}
-            onDragStart={handleDragStart}
-            onDragEnd={handleDragEnd}
-          >
-            <SortableContext
-              items={eventsFlow?.map((a) => String(a.id))}
-              strategy={verticalListSortingStrategy}
-            >
-              <div className="flex flex-col gap-2">
-                {eventsFlow?.map((agenda) => (
-                  <SortableAgenda
-                    key={agenda.id}
-                    ref={(el) => {
-                      if (el) {
-                        agendaRefs.current[agenda.id] = el;
-                      } else {
-                        delete agendaRefs.current[agenda.id];
-                      }
-                    }}
-                    agenda={agenda}
-                    onDeletAgenda={deleteAgenda}
-                  />
-                ))}
-              </div>
-            </SortableContext>
-          </DndContext>
+          <div className="flex flex-col gap-2">
+            {eventsFlow.map((agenda) => (
+              <CustomizedAgenda
+                key={agenda.id}
+                agenda={agenda}
+                onDelete={deleteAgenda}
+              />
+            ))}
+          </div>
         )}
         <button
           onClick={addAgenda}
