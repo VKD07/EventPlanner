@@ -1,16 +1,15 @@
-import { useState } from "react";
-import * as Dialog from "@radix-ui/react-dialog";
-import { useEventsContext } from "../../Context/EventDataContext";
-import Member from "../Member";
+import { useState, useMemo } from "react";
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
-import MemberFilters from "./MemberFilters";
 import { useGetAllMembersAndTheirAtrrib } from "../../hooks/useMembers";
+import { useGetAllSkillsAndRoles } from "../../hooks/useRolesAndSkills";
+import Member from "../Member";
+import MemberFilters from "./MemberFilters";
+import * as Dialog from "@radix-ui/react-dialog";
 
 const MembersDialogs = ({ buttonName, onSelectMember, buttonStyle, icon }) => {
+  const { data: members } = useGetAllMembersAndTheirAtrrib();
+  const { data: skillsAndRoles } = useGetAllSkillsAndRoles();
 
-  const {data:members}= useGetAllMembersAndTheirAtrrib();
-
-  const { memberFilters } = useEventsContext();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilters, setActiveFilters] = useState({});
 
@@ -25,22 +24,29 @@ const MembersDialogs = ({ buttonName, onSelectMember, buttonStyle, icon }) => {
     }));
   }
 
-  // const filteredByFilters = members.filter((member) => {
-  //   return Object.entries(activeFilters).every(([category, filters]) => {
-  //     if (!filters.length) return true;
-  //     if (category.toLowerCase() === "skills") {
-  //       return member.skills.some((skill) => filters.includes(skill));
-  //     }
-  //     if (category.toLowerCase() === "role") {
-  //       return member.role.some((role) => filters.includes(role));
-  //     }
-  //     return true;
-  //   });
-  // });
+  const filteredMembers = useMemo(() => {
+    if (!members) return [];
 
-  // const filteredMembers = filteredByFilters.filter((member) =>
-  //   member.name.toLowerCase().includes(searchQuery.toLowerCase())
-  // );
+    const filteredByFilters = members.filter((member) => {
+      return Object.entries(activeFilters).every(([category, filters]) => {
+        if (!filters.length) return true;
+
+        if (category.toLowerCase() === "skills") {
+          return member.skills?.some((skill) => filters.includes(skill));
+        }
+
+        if (category.toLowerCase() === "role") {
+          return member.roles?.some((role) => filters.includes(role));
+        }
+
+        return true;
+      });
+    });
+
+    return filteredByFilters.filter((member) =>
+      member.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [members, activeFilters, searchQuery]);
 
   return (
     <Dialog.Root>
@@ -75,7 +81,7 @@ const MembersDialogs = ({ buttonName, onSelectMember, buttonStyle, icon }) => {
           <div className="flex flex-row gap-2">
             <aside className="bg-amber-700 flex flex-col gap-2 p-2 max-w-[900px] min-w-[215px] rounded flex-wrap text-sm">
               <h1 className="font-bold my-1">Filter:</h1>
-              {memberFilters.map((filter, index) => (
+              {skillsAndRoles?.data?.map((filter, index) => (
                 <MemberFilters
                   key={index}
                   categoryName={filter.name}
@@ -86,9 +92,9 @@ const MembersDialogs = ({ buttonName, onSelectMember, buttonStyle, icon }) => {
                 />
               ))}
             </aside>
-            {/* TODO GET ALL MEMBERS SKILLS AND ROLES */}
+
             <div className="grid grid-cols-3 gap-2">
-              {members?.map((member) => (
+              {filteredMembers?.map((member) => (
                 <Member
                   key={member.id}
                   member={member}
