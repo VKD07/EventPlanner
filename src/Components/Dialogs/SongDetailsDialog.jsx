@@ -19,6 +19,15 @@ const SongDetailsDialog = ({ buttonName, buttonStyle, icon, songDetails }) => {
           top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 
           p-8 mt-10 max-h-[90vh] min-w-[1000px] overflow-y-auto"
           >
+            <Dialog.Close asChild>
+              <button
+                className="absolute top-4 right-4 bg-red-500 text-white rounded-full px-3 py-1 hover:bg-red-600"
+                aria-label="Close"
+              >
+                ✕
+              </button>
+            </Dialog.Close>
+
             <Dialog.Title className="text-xl mb-4">Song Details:</Dialog.Title>
 
             <div className="bg-amber-300 p-4 rounded-md flex flex-row gap-2">
@@ -32,8 +41,39 @@ const SongDetailsDialog = ({ buttonName, buttonStyle, icon, songDetails }) => {
                 </span>
               </div>
               <div className="flex flex-col gap-4 w-[30%]">
-                <div className="bg-amber-200 rounded-md">AUDIO</div>
-                <div className="bg-amber-400 rounded-md">TAGS</div>
+                {/* Audio Section */}
+                <div className="bg-amber-200 rounded-md">
+                  <div className="flex flex-col gap-1">
+                    <h1 className="font-bold">Audio:</h1>
+                    <div className="flex flex-col gap-2">
+                      {songDetails.audio.map((audio, index) => (
+                        <div
+                          key={index}
+                          className="bg-green-400 rounded-md text-sm text-center"
+                        >
+                          {audio}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                {/* Audio Section */}
+
+                {/* Tags section */}
+                <div className="flex flex-col gap-1">
+                  <h1 className="font-bold">Tags:</h1>
+                  <div className="grid grid-cols-3 gap-2">
+                    {songDetails.tags.map((tag, index) => (
+                      <div
+                        key={index}
+                        className="bg-blue-500 rounded-md text-sm text-center"
+                      >
+                        {tag}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                {/* Tags section */}
               </div>
             </div>
           </Dialog.Content>
