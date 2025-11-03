@@ -4,7 +4,7 @@ import { useEventsContext } from "../../Context/EventDataContext";
 import { useEvent } from "../../hooks/useEvents";
 
 const Calendar = ({ onDateClicked }) => {
-  const { events, setSelectedDate } = useEventsContext();
+  const { selectedDate, setSelectedDate } = useEventsContext();
 
   const { data: event, isLoading, isError, error } = useEvent();
 
@@ -125,11 +125,8 @@ const Calendar = ({ onDateClicked }) => {
               <button
                 onClick={() => {
                   onDateClicked();
-                  setSelectedDate({
-                    date: day,
-                    month: monthNames[currentMonth],
-                    year: currentYear,
-                  });
+                  const dateSelected = new Date(currentYear, currentMonth, day);
+                  setSelectedDate(dateSelected);
                 }}
               >
                 {day || ""}

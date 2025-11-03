@@ -5,10 +5,13 @@ import Modal from "../Utils/Modal";
 import { useAddEvent } from "../../hooks/useEvents";
 
 const EventCreationModal = ({ isOpen, onClose }) => {
-  const { addEvent, selectedDate } = useEventsContext();
+  
+  const { selectedDate } = useEventsContext();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
+
+  const eventDate = selectedDate?.toISOString().split("T")[0]
 
   const addAnEvent = useAddEvent();
 
@@ -24,14 +27,11 @@ const EventCreationModal = ({ isOpen, onClose }) => {
 
   const handleSave = () => {
     if (!title.trim()) return;
-    // addEvent({ title, description, ...selectedDate, location });
     addAnEvent.mutate({
       title,
-      description,
-      day: selectedDate.date,
-      month: selectedDate.month,
-      year: selectedDate.year,
+      eventDate, 
       location,
+      description
     });
     onClose();
   };
@@ -43,7 +43,7 @@ const EventCreationModal = ({ isOpen, onClose }) => {
       <h2 className="text-xl font-bold mb-1">Create Event</h2>
       {selectedDate && (
         <h3 className="mb-2">
-          Date: {selectedDate.month} {selectedDate.date}, {selectedDate.year}
+          Date: {selectedDate.toDateString()}
         </h3>
       )}
 

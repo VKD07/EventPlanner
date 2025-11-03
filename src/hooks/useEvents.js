@@ -12,7 +12,7 @@ export function useEvent(){
 export function useAddEvent() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: addEvent,
+    mutationFn: ({title, eventDate, location, description}) => addEvent(title, eventDate, location, description),
     onSuccess: () => {
       queryClient.invalidateQueries(["events"]);
     },

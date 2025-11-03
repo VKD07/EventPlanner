@@ -3,7 +3,7 @@ import ConsoleDebug from "../ConsoleDebug";
 
 const EventFlow = ({ eventFlow }) => {
 
-  if (!eventFlow) {
+  if (!eventFlow || eventFlow.length <= 0) {
     return (
       <div className="bg-amber-50 rounded-2xl">
         <h2 className="font-bold p-2">No event flow available</h2>

@@ -1,12 +1,14 @@
 const API_URL = "http://localhost:3000/events";
+import e from "cors";
 import { supabase } from "./supabase";
 
+const TABLE_NAME = "events";
 
 export async function getEvents() {
   const { data, error } = await supabase
-    .from('events')
-    .select('*')
-    .order('eventDate', { ascending: true });
+    .from(TABLE_NAME)
+    .select("*")
+    .order("eventDate", { ascending: true });
 
   if (error) {
     throw new Error("Failed to fetch events from Supabase: " + error.message);
@@ -15,20 +17,12 @@ export async function getEvents() {
   return data;
 }
 
-export async function addEvent(newEvent) {
-  const res = await fetch(API_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      title: newEvent.title,
-      day: newEvent.day,
-      month: newEvent.month,
-      year: newEvent.year,
-      location: newEvent.location,
-      description: newEvent.description,
-    }),
-  });
+export async function addEvent(title, eventDate, location, description) {
+  const { error } = await supabase
+    .from(TABLE_NAME)
+    .insert({ title, eventDate: eventDate, location, description });
 
-  if (!res.ok) throw new Error("Failed to add event");
-  return res.json();
+  if (error) {
+    throw new Error("Failed to add events to Supabase: " + error.message);
+  }
 }
