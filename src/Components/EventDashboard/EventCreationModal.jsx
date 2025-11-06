@@ -38,6 +38,7 @@ const EventCreationModal = ({ isOpen, onClose }) => {
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
+
       <ConsoleDebug componentName="EventCreationModal" />
 
       <h2 className="text-xl font-bold mb-1">Create Event</h2>
@@ -81,6 +82,7 @@ const EventCreationModal = ({ isOpen, onClose }) => {
           Create
         </button>
       </div>
+      
     </Modal>
   );
 };

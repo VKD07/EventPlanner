@@ -1,6 +1,10 @@
 import * as Dialog from "@radix-ui/react-dialog";
+import { useSongAudioUrl } from "../../hooks/useSongs";
 
 const SongDetailsDialog = ({ buttonName, buttonStyle, icon, songDetails }) => {
+
+  const {data : audioUrl} = useSongAudioUrl(songDetails.audioUrl);
+
   if (songDetails) {
     return (
       <Dialog.Root>
@@ -32,7 +36,7 @@ const SongDetailsDialog = ({ buttonName, buttonStyle, icon, songDetails }) => {
 
             <div className="bg-amber-300 p-4 rounded-md flex flex-row gap-2">
               <div className="bg-amber-200 rounded-md w-[70%] flex flex-col gap-2 items-center">
-                <span>Title: {songDetails.name}</span>
+                <span>Title: {songDetails.title}</span>
                 <span>Author: {songDetails.author}</span>
                 <span>
                   Lyrics:
@@ -46,14 +50,23 @@ const SongDetailsDialog = ({ buttonName, buttonStyle, icon, songDetails }) => {
                   <div className="flex flex-col gap-1">
                     <h1 className="font-bold">Audio:</h1>
                     <div className="flex flex-col gap-2">
-                      {songDetails.audio.map((audio, index) => (
+                      {/* {songDetails.audio.map((audio, index) => (
                         <div
                           key={index}
                           className="bg-green-400 rounded-md text-sm text-center"
                         >
                           {audio}
                         </div>
-                      ))}
+                      ))} */}
+
+
+                      {audioUrl && (
+                        <audio className="w-full" controls>
+                          <source src={audioUrl} type="audio/mpeg" />
+                          Your browser does not support the audio element.
+                        </audio>
+                      )}
+                      
                     </div>
                   </div>
                 </div>
@@ -63,14 +76,14 @@ const SongDetailsDialog = ({ buttonName, buttonStyle, icon, songDetails }) => {
                 <div className="flex flex-col gap-1">
                   <h1 className="font-bold">Tags:</h1>
                   <div className="grid grid-cols-3 gap-2">
-                    {songDetails.tags.map((tag, index) => (
+                    {/* {songDetails.tags.map((tag, index) => (
                       <div
                         key={index}
                         className="bg-blue-500 rounded-md text-sm text-center"
                       >
                         {tag}
                       </div>
-                    ))}
+                    ))} */}
                   </div>
                 </div>
                 {/* Tags section */}

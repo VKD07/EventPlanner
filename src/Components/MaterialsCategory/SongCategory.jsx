@@ -1,60 +1,25 @@
+import { set } from "react-hook-form";
 import SongDetailsDialog from "../Dialogs/songDetailsDialog";
-import { useState } from "react";
+import { use, useEffect, useState } from "react";
+import UploadSongDialog from "../Dialogs/UploadSongDialog";
+import { useGetSongs } from "../../hooks/useSongs";
 
 const SongCategory = () => {
-  const [songsData, setSongsData] = useState([
-    {
-      id: 1,
-      name: "Sunset Whispers",
-      author: "Luna Hart",
-      lyrics:
-        "The sun fades low, the wind starts slow, memories drift where the rivers flow...",
-      tags: ["chill", "acoustic", "evening"],
-      audio: ["Intro melody", "Verse 1 vocals", "Chorus loop"],
-    },
-    {
-      id: 2,
-      name: "Neon Skyline",
-      author: "Echo Fields",
-      lyrics:
-        "City lights dance beneath the rain, hearts collide in electric pain...",
-      tags: ["synthwave", "retro", "night"],
-      audio: ["Synth pad layer", "Lead guitar riff", "Bass groove"],
-    },
-    {
-      id: 3,
-      name: "Paper Hearts",
-      author: "Milo Vance",
-      lyrics:
-        "Folded dreams and paper hearts, fragile love that falls apart...",
-      tags: ["indie", "romantic", "soft"],
-      audio: ["Acoustic strum", "Harmony vocals", "Outro ambience"],
-    },
-    {
-      id: 4,
-      name: "Golden Horizon",
-      author: "Aria Bloom",
-      lyrics:
-        "Through the clouds the light will rise, hope reborn in morning skies...",
-      tags: ["uplifting", "folk", "sunrise"],
-      audio: ["Guitar intro", "Main chorus", "Bridge instrumental"],
-    },
-    {
-      id: 5,
-      name: "Echoes in the Rain",
-      author: "Noah Reign",
-      lyrics:
-        "Whispered echoes in the rain, calling softly through the pain...",
-      tags: ["emotional", "ballad", "rain"],
-      audio: ["Piano intro", "Vocal track", "String section"],
-    },
-  ]);
+
+  const { data: songsData, isLoading, error } = useGetSongs();
 
   if (songsData) {
     return (
       <div className="flex flex-row gap-4 items-start">
         {/* filters */}
-        <div className="bg-amber-300 rounded-md p-2 w-[20%]">filters</div>
+        <div className="bg-amber-300 rounded-md p-2 w-[20%]">
+          <span>filters:</span>
+
+          <UploadSongDialog
+            buttonName={"Upload A Song"}
+            buttonStyle={"rounded-md bg-amber-500 p-2 w-full"}
+          />
+        </div>
         <div className="bg-amber-300 flex flex-wrap font-bold mb-2 w-[80%] rounded-md max-h-[60vh] overflow-y-auto">
           {/* list of songs */}
           <h1 className="w-full pl-2 pt-2">Song List:</h1>
@@ -70,7 +35,7 @@ const SongCategory = () => {
                   <div className="flex flex-row items-center gap-15">
                     <div className="flex flex-row items-center gap-1">
                       <span className="font-semibold">Song:</span>
-                      <span>{song.name}</span>
+                      <span>{song.title}</span>
                     </div>
 
                     <div className="flex flex-row items-center gap-1">
