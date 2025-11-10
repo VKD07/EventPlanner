@@ -1,9 +1,11 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { useSongAudioUrl } from "../../hooks/useSongs";
+import { useTagBySongID } from "../../hooks/useTags";
 
 const SongDetailsDialog = ({ buttonName, buttonStyle, icon, songDetails }) => {
 
   const {data : audioUrl} = useSongAudioUrl(songDetails.audioUrl);
+  const {data: tags} = useTagBySongID(songDetails.id);
 
   if (songDetails) {
     return (
@@ -76,14 +78,14 @@ const SongDetailsDialog = ({ buttonName, buttonStyle, icon, songDetails }) => {
                 <div className="flex flex-col gap-1">
                   <h1 className="font-bold">Tags:</h1>
                   <div className="grid grid-cols-3 gap-2">
-                    {/* {songDetails.tags.map((tag, index) => (
+                    {tags?.map((tag, index) => (
                       <div
                         key={index}
                         className="bg-blue-500 rounded-md text-sm text-center"
                       >
-                        {tag}
+                        {tag.tag_name}
                       </div>
-                    ))} */}
+                    ))}
                   </div>
                 </div>
                 {/* Tags section */}

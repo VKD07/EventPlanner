@@ -1,19 +1,41 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import * as Dialog from "@radix-ui/react-dialog";
 import { useAddSong } from "../../hooks/useSongs";
+import { useGetAllTags, useAddTagsToSong } from "../../hooks/useTags";
 
-const UploadSongDialog = ({
-  buttonName,
-  onSelectElement,
-  buttonStyle,
-  icon,
-}) => {
+const UploadSongDialog = ({ buttonName, onSelectElement, buttonStyle, icon }) => {
   const { register, handleSubmit, reset } = useForm();
   const [isUploading, setIsUploading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [selectedTags, setSelectedTags] = useState([]);
+  const [remainingTags, setRemainingTags] = useState([]);
+
+  const { data: tags } = useGetAllTags();
 
   const uploadSongMutation = useAddSong();
+  const addTagsToSongMutation = useAddTagsToSong();
+
+  useEffect(() => {
+    if (tags) {
+      setRemainingTags(tags);
+    }
+  }, [tags]);
+
+  const handleTagSelect = (e) => {
+    const selectedTag = e.target.value;
+    if (!selectedTag) return;
+    if (selectedTags.includes(selectedTag)) return;
+    setSelectedTags((prev) => [...prev, selectedTag]);
+    setRemainingTags((prev) => prev.filter((tag) => tag.name !== selectedTag));
+    e.target.value = "";
+  };
+
+  const handleRemoveTag = (tagToRemove) => {
+    setSelectedTags((prev) => prev.filter((t) => t !== tagToRemove));
+    const restoredTag = tags.find((t) => t.name === tagToRemove);
+    setRemainingTags((prev) => [...prev, restoredTag]);
+  };
 
   const onSubmit = (data) => {
     const file = data.audioFile?.[0];
@@ -21,10 +43,8 @@ const UploadSongDialog = ({
       console.error("❌ No audio file selected");
       return;
     }
-
     setIsUploading(true);
     setIsSuccess(false);
-
     uploadSongMutation.mutate(
       {
         title: data.title,
@@ -36,8 +56,9 @@ const UploadSongDialog = ({
         onSuccess: () => {
           setIsUploading(false);
           setIsSuccess(true);
-          console.log("✅ Song uploaded successfully!");
           reset();
+          setSelectedTags([]);
+          setRemainingTags(tags);
         },
         onError: (err) => {
           setIsUploading(false);
@@ -46,13 +67,17 @@ const UploadSongDialog = ({
         },
       }
     );
+
+    // TODO: After song upload, associate tags get the song ID and tag ids
+   
   };
 
-  // Reset states when dialog closes
   const handleDialogChange = (open) => {
     if (!open) {
       setIsUploading(false);
       setIsSuccess(false);
+      setSelectedTags([]);
+      setRemainingTags(tags);
       reset();
     }
   };
@@ -82,29 +107,51 @@ const UploadSongDialog = ({
             </button>
           </Dialog.Close>
 
-          <Dialog.Title className="text-xl font-bold mb-4">
-            UPLOAD A SONG:
-          </Dialog.Title>
+          <Dialog.Title className="text-xl font-bold mb-4">UPLOAD A SONG:</Dialog.Title>
 
-          <form
-            className="flex flex-col gap-4 p-2"
-            onSubmit={handleSubmit(onSubmit)}
-          >
-            <input
-              {...register("title")}
-              placeholder="Song Title"
-              className="bg-amber-400 rounded-md p-2 w-full"
-            />
-            <input
-              {...register("author")}
-              placeholder="Author"
-              className="bg-amber-400 rounded-md p-2 w-full"
-            />
-            <textarea
-              {...register("lyrics")}
-              placeholder="Lyrics"
-              className="bg-amber-400 rounded-md p-2 w-full"
-            />
+          <form className="flex flex-col gap-4 p-2" onSubmit={handleSubmit(onSubmit)}>
+            <input {...register("title")} placeholder="Song Title" className="bg-amber-400 rounded-md p-2 w-full" />
+            <input {...register("author")} placeholder="Author" className="bg-amber-400 rounded-md p-2 w-full" />
+            <textarea {...register("lyrics")} placeholder="Lyrics" className="bg-amber-400 rounded-md p-2 w-full" />
+
+            <div>
+              <p className="font-semibold">Selected Tags:</p>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {selectedTags.length > 0 ? (
+                  selectedTags.map((tag, index) => (
+                    <span
+                      key={index}
+                      className="bg-amber-700 text-white rounded-md px-3 py-1 flex items-center gap-2"
+                    >
+                      {tag}
+                      <button
+                        type="button"
+                        className="text-xs bg-red-500 rounded-full px-2 hover:bg-red-600"
+                        onClick={() => handleRemoveTag(tag)}
+                      >
+                        ✕
+                      </button>
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-gray-700 italic">No tags selected</span>
+                )}
+              </div>
+            </div>
+
+            <select
+              id="tag"
+              onChange={handleTagSelect}
+              className="bg-amber-400 rounded-md p-2 w-[30%]"
+            >
+              <option value="">-- Choose a tag --</option>
+              {remainingTags?.map((tag, index) => (
+                <option key={index} value={tag.name}>
+                  {tag.name}
+                </option>
+              ))}
+            </select>
+
             <input
               {...register("audioFile")}
               type="file"
@@ -112,7 +159,6 @@ const UploadSongDialog = ({
               className="bg-amber-400 rounded-md p-2 w-[30%]"
             />
 
-            {/* ✅ Upload status message */}
             <div className="font-semibold h-6">
               {isUploading ? (
                 <span className="text-blue-700">Uploading...</span>
