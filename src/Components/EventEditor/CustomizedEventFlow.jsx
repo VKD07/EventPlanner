@@ -48,7 +48,7 @@ const CustomizedEventFlow = ({ selectedEvent }) => {
   };
 
   const handleGoBackClick = () => {
-    navigate("/");
+    navigate("/dashboard");
   };
 
   return (
