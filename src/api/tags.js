@@ -18,14 +18,13 @@ export async function getAllTags(){
     return data;
 }
 
-export async function addTagsToSong(songID, tagIDs) {
-    
-  const rows = tagIDs.map((tagID) => ({
-    song_id: songID,
-    tags_id: tagID,
-  }));
-
-  const { error } = await supabase.from("song_tags").insert(rows);
+export async function addTagsToSongByTitleAndAuthor(title, author, tagIDs) {
+  
+  const { error } = await supabase.rpc("add_tags_to_song", {
+    song_title: title,
+    song_author: author,
+    tag_ids: tagIDs,
+  });
 
   if (error) {
     throw new Error("Failed to add tags to song in Supabase: " + error.message);

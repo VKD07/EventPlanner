@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
-import { getAllTags, getTagBySongID } from "../api/tags";
+import { getAllTags, getTagBySongID, addTagsToSongByTitleAndAuthor } from "../api/tags";
 
 export function useGetAllTags() {
   return useQuery({
@@ -17,10 +17,10 @@ export function useTagBySongID(songID) {
   });
 }
 
-export function useAddTagsToSong() {
+export function useAddTagsToSongByTitleAndAuthor() {
   const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: ({ songID, tagIDs }) => getTagBySongID(songID, tagIDs),
+        mutationFn: ({ title, author, tagIDs }) => addTagsToSongByTitleAndAuthor(title, author, tagIDs),
         onSuccess: () => {
             queryClient.invalidateQueries(["tags-by-song"]);
         },
