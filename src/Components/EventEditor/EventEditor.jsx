@@ -58,8 +58,8 @@ const EventEditor = () => {
 
   return (
     <div className="flex flex-col flex-wrap gap-5 mt-20 lg:grid portrait:grid-cols-[70%_15%] landscape:grid-cols-[70%_17%]">
-      {/* <div className="bg-amber-200 rounded h-[300px]">Library Elements</div> */}
 
+      {/* <div className="bg-amber-200 rounded h-[300px]">Library Elements</div> */}
       <CustomizedEventFlow selectedEvent={selectedEvent} />
 
       <div className="bg-amber-900 rounded h-auto">

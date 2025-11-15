@@ -4,17 +4,22 @@ import SongCategory from "../MaterialsCategory/SongCategory";
 import CategoryButton from "../MaterialsCategory/CategoryButton";
 import ExtraCategory from "../MaterialsCategory/ExtraCategory";
 
-const MaterialsDialog = ({ buttonName, onSelectMember, buttonStyle, icon }) => {
-  const [selectedCategory, setSelectedCategory] = useState(<SongCategory />);
+const MaterialsDialog = ({ buttonName, onSelectedMaterial, buttonStyle, icon }) => {
+  const [selectedCategory, setSelectedCategory] = useState("songs");
+  const [open, setOpen] = useState(false);
 
+  const handleMaterialSelection = (selectedMaterial) => {
+    onSelectedMaterial?.(selectedMaterial);
+    setOpen(false);
+  };
 
-  const onCategoryClicked = (selectedCategory) => {
-    setSelectedCategory(selectedCategory);
+  const onCategoryClicked = (categoryName) => {
+    setSelectedCategory(categoryName);
   };
 
   return (
-    <Dialog.Root>
-      <Dialog.Trigger className={buttonStyle}>
+    <Dialog.Root open={open} onOpenChange={setOpen}>
+      <Dialog.Trigger className={buttonStyle} onClick={() => setOpen(true)}>
         <div className="flex flex-row items-center gap-2">
           {buttonName}
           {icon}
@@ -23,7 +28,6 @@ const MaterialsDialog = ({ buttonName, onSelectMember, buttonStyle, icon }) => {
 
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/50" />
-
         <Dialog.Content
           className="fixed bg-amber-200 shadow rounded-2xl
           top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 
@@ -40,12 +44,11 @@ const MaterialsDialog = ({ buttonName, onSelectMember, buttonStyle, icon }) => {
 
           <Dialog.Title className="text-xl mb-4">Categories:</Dialog.Title>
 
-          {/* Category buttons */}
           <div className="flex flex-col gap-2">
             <div className="bg-amber-700 flex flex-row gap-3 p-3 w-full">
               <CategoryButton
                 style={"bg-amber-200 rounded-md p-2 hover:bg-amber-500"}
-                categoryComponent={<SongCategory />}
+                categoryComponent="songs"
                 onCategoryClicked={onCategoryClicked}
               >
                 Songs
@@ -53,14 +56,18 @@ const MaterialsDialog = ({ buttonName, onSelectMember, buttonStyle, icon }) => {
 
               <CategoryButton
                 style={"bg-amber-200 rounded-md p-2 hover:bg-amber-500"}
-                categoryComponent={<ExtraCategory />}
+                categoryComponent="extras"
                 onCategoryClicked={onCategoryClicked}
               >
                 Sample
               </CategoryButton>
             </div>
 
-            {selectedCategory}
+            {selectedCategory === "songs" && (
+              <SongCategory onMaterialSelection={handleMaterialSelection} />
+            )}
+
+            {selectedCategory === "extras" && <ExtraCategory />}
           </div>
         </Dialog.Content>
       </Dialog.Portal>

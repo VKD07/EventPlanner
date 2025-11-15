@@ -1,31 +1,21 @@
-import { useState, useEffect } from "react";
 import { Pencil1Icon } from "@radix-ui/react-icons";
 import { useUpdateEventFlow } from "../../hooks/useEventFlow";
 import MembersDialogs from "../Dialogs/MembersDialogs";
 import MaterialsDialog from "../Dialogs/MaterialsDialog";
 
 export default function CustomizedAgenda({ agenda, onDelete }) {
-  const [time, setTime] = useState(agenda.time);
-  const [segment, setSegment] = useState(agenda.segment);
-  const [selectedMember, setSelectedMember] = useState();
-
   const updateEventFlowMutation = useUpdateEventFlow();
 
-  const agendaTime = agenda.time?.slice(0, 5) || "";
+  const handleUpdate = (field, value) => {
+    console.log(`Updating field: ${field} with value: ${value}`);
 
-  useEffect(() => {
-    setTime(agendaTime);
-    setSegment(agenda.segment);
-    setSelectedMember(undefined);
-  }, [agenda]);
-
-  const handleBlur = (field, value) => {
     updateEventFlowMutation.mutate(
       {
         agendaID: agenda.id,
-        time: field === "time" ? value : time,
-        segment: field === "segment" ? value : segment,
-        leaderID: field === "leader" ? value : selectedMember?.id,
+        time: field === "time" ? value : agenda.time,
+        segment: field === "segment" ? value : agenda.segment,
+        leaderID: field === "leader" ? value : agenda.leader_id,
+        materialID: field === "material" ? value : agenda.material_id,
       },
       {
         onSuccess: () => console.log("✅ Event flow updated successfully!"),
@@ -44,9 +34,8 @@ export default function CustomizedAgenda({ agenda, onDelete }) {
           <input
             type="time"
             id="time"
-            value={time}
-            onChange={(e) => setTime(e.target.value)}
-            onBlur={(e) => handleBlur("time", e.target.value)}
+            defaultValue={agenda.time?.slice(0, 5) || ""}
+            onBlur={(e) => handleUpdate("time", e.target.value)}
             className="bg-white rounded-md w-[100px] p-1 text-sm portrait:w-full"
           />
         </div>
@@ -57,26 +46,19 @@ export default function CustomizedAgenda({ agenda, onDelete }) {
           </label>
           <input
             id="segment"
-            value={segment}
-            onChange={(e) => setSegment(e.target.value)}
-            onBlur={(e) => handleBlur("segment", e.target.value)}
+            defaultValue={agenda.segment}
+            onBlur={(e) => handleUpdate("segment", e.target.value)}
             className="bg-white rounded-md w-[120px] p-1 text-sm portrait:w-full"
           />
         </div>
 
         <div className="flex items-center gap-2">
           <label htmlFor="leader" className="text-sm">
-            Leader:{" "}
-            {!selectedMember
-              ? agenda.leader_name || "Select Leader"
-              : selectedMember.name}
+            Leader: {agenda.leader_name || "Select Leader"}
           </label>
 
           <MembersDialogs
-            onSelectMember={(member) => {
-              setSelectedMember(member);
-              handleBlur("leader", member.id);
-            }}
+            onSelectMember={(member) => handleUpdate("leader", member.id)}
             buttonStyle="bg-amber-600 rounded p-2 hover:bg-amber-900 text-white"
             icon={<Pencil1Icon />}
           />
@@ -84,15 +66,16 @@ export default function CustomizedAgenda({ agenda, onDelete }) {
 
         <div className="flex items-center gap-2">
           <label htmlFor="Materials" className="text-sm">
-            Materials: {" "} Select Material
+            Materials: {agenda.material_name || "Add Material"}
           </label>
 
           <MaterialsDialog
             buttonStyle="bg-amber-600 rounded p-2 hover:bg-amber-900 text-white"
+            onSelectedMaterial={(material) =>
+              handleUpdate("material", material.id)
+            }
             icon={<Pencil1Icon />}
-          >
-            Add material
-          </MaterialsDialog>
+          />
         </div>
 
         <div className="w-full md:w-auto md:ms-auto flex justify-end items-center gap-2 shrink-0">

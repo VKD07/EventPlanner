@@ -30,13 +30,16 @@ export async function getEventFlowByEventID(id) {
   return data;
 }
 
-export async function updateEventFlowByID(agendaID, time, segment, leaderID) {
+export async function updateEventFlowByID(agendaID, time, segment, leaderID, materialID) {
+
+  console.log("Updating event flow with materialID:", materialID);
   const { error } = await supabase
     .from(TABLE_NAME)
     .update({
       time: time,
       segment: segment,
       leaderID: leaderID,
+      materialID: materialID,
     })
     .eq("id", agendaID);
 

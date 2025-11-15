@@ -2,13 +2,15 @@ import { set } from "react-hook-form";
 import SongDetailsDialog from "../Dialogs/songDetailsDialog";
 import { use, useEffect, useState } from "react";
 import UploadSongDialog from "../Dialogs/UploadSongDialog";
-import { useGetSongs } from "../../hooks/useSongs";
+import { useGetSongsAndMaterialID } from "../../hooks/useSongs";
 
-const SongCategory = () => {
+const SongCategory = ({ onMaterialSelection }) => {
 
-  const { data: songsData, isLoading, error } = useGetSongs();
+  const { data: songsData, isLoading, error } = useGetSongsAndMaterialID();
 
+  
   if (songsData) {
+    
     return (
       <div className="flex flex-row gap-4 items-start">
         {/* filters */}
@@ -53,7 +55,7 @@ const SongCategory = () => {
                       }
                       songDetails={song}
                     />
-                    <button className="bg-amber-400 rounded-md p-1 text-xs hover:bg-amber-200">
+                    <button onClick={() => onMaterialSelection({id: song.agenda_material_id, name: song.title})} className="bg-amber-400 rounded-md p-1 text-xs hover:bg-amber-200">
                       Select
                     </button>
                   </div>

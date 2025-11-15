@@ -17,8 +17,8 @@ export function useGetEventFlowByID(eventId) {
 export function useUpdateEventFlow() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ agendaID, time, segment, leaderID }) =>
-      updateEventFlowByID(agendaID, time, segment, leaderID),
+    mutationFn: ({ agendaID, time, segment, leaderID, materialID }) =>
+      updateEventFlowByID(agendaID, time, segment, leaderID, materialID),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["event_flow"],
