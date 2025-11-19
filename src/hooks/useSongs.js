@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
-import { uploadSong, getSongs, getSongAudioUrl, getSongIdByTitleAndAuthor, getSongsAndMaterialID } from "../api/songs";
+import { uploadSong, getSongs, getSongAudioUrl, getSongIdByTitleAndAuthor, getSongsAndMaterialID, getSongByID } from "../api/songs";
 
 export function useAddSong() {
   const queryClient = useQueryClient();
@@ -42,6 +42,16 @@ export function useGetSongByTitleAndAuthor(){
 return useQuery({
     queryKey: ["song-by-title"],
     queryFn: (title, author) => getSongIdByTitleAndAuthor(title, author),
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
+
+export function useGetSongByID(id){
+  return useQuery({
+    queryKey: ["song-by-id", id],
+    queryFn: () => getSongByID(id),
+    enabled: !!id,
     staleTime: 1000 * 60 * 5,
   });
 }

@@ -2,20 +2,28 @@ import { Pencil1Icon } from "@radix-ui/react-icons";
 import { useUpdateEventFlow } from "../../hooks/useEventFlow";
 import MembersDialogs from "../Dialogs/MembersDialogs";
 import MaterialsDialog from "../Dialogs/MaterialsDialog";
+import { useGetSongByID } from "../../hooks/useSongs";
+import SongDetailsDialog from "../Dialogs/songDetailsDialog";
 
 export default function CustomizedAgenda({ agenda, onDelete }) {
   const updateEventFlowMutation = useUpdateEventFlow();
 
-  const handleUpdate = (field, value) => {
-    console.log(`Updating field: ${field} with value: ${value}`);
+  console.log("Agenda in CustomizedAgenda:", agenda);
 
+  const { data: songDetails } = useGetSongByID(agenda.material_id);
+
+
+  const handleUpdate = (field, value) => {
+
+    console.log(`Updating field: ${field} with value: ${value}`);
+    
     updateEventFlowMutation.mutate(
       {
         agendaID: agenda.id,
         time: field === "time" ? value : agenda.time,
         segment: field === "segment" ? value : agenda.segment,
         leaderID: field === "leader" ? value : agenda.leader_id,
-        materialID: field === "material" ? value : agenda.material_id,
+        materialID: field === "material" ? value : agenda.material_pk,
       },
       {
         onSuccess: () => console.log("✅ Event flow updated successfully!"),
@@ -66,7 +74,16 @@ export default function CustomizedAgenda({ agenda, onDelete }) {
 
         <div className="flex items-center gap-2">
           <label htmlFor="Materials" className="text-sm">
-            Materials: {agenda.material_name || "Add Material"}
+            Materials:{" "}
+            {(songDetails && (
+              <SongDetailsDialog
+                buttonStyle={"underline hover:font-bold"}
+                buttonName={songDetails.title}
+                songDetails={songDetails}
+              />
+            )) ||
+              agenda.material_name ||
+              "Add Material"}
           </label>
 
           <MaterialsDialog

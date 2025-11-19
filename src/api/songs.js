@@ -76,6 +76,15 @@ export async function getSongsAndMaterialID(){
   return data;
 }
 
+export async function getSongByID(id) {
+  const {data,error } = await supabase.from("songs").select("*").eq("id", id).single();
+
+  if (error) {
+    throw new Error("Failed to fetch song by ID from Supabase: " + error.message);
+  }
+  return data;
+}
+
 export async function getSongIdByTitleAndAuthor(title, author) {
   const { data, error } = await supabase
     .from("songs")

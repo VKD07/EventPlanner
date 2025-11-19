@@ -5,7 +5,7 @@ import { useTagBySongID } from "../../hooks/useTags";
 const SongDetailsDialog = ({ buttonName, buttonStyle, icon, songDetails }) => {
 
   const {data : audioUrl} = useSongAudioUrl(songDetails.audioUrl);
-  const {data: tags} = useTagBySongID(songDetails.song_id);
+  const {data: tags} = useTagBySongID(songDetails.id);
 
   if (songDetails) {
     return (

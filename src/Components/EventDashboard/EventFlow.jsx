@@ -25,7 +25,7 @@ const EventFlow = ({ eventFlow }) => {
                 time={agenda.time}
                 segment={agenda.segment}
                 leader={agenda.leader_name}
-                materials={agenda.material_name}
+                material={{material_name: agenda.material_name, material_type: agenda.material_type, material_id: agenda.material_id}}
               />
             </li>
           </ul>

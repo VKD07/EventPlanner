@@ -32,7 +32,6 @@ export async function getEventFlowByEventID(id) {
 
 export async function updateEventFlowByID(agendaID, time, segment, leaderID, materialID) {
 
-  console.log("Updating event flow with materialID:", materialID);
   const { error } = await supabase
     .from(TABLE_NAME)
     .update({
