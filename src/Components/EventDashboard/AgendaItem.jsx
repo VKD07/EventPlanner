@@ -1,4 +1,4 @@
-import SongDetailsDialog from "../Dialogs/songDetailsDialog";
+import SongDetailsDialog from "../Dialogs/SongDetailsDialog";
 import { useGetSongByID } from "../../hooks/useSongs";
 
 const AgendaItem = ({ time, segment, leader, material }) => {

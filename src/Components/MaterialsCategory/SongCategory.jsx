@@ -1,4 +1,4 @@
-import SongDetailsDialog from "../Dialogs/songDetailsDialog";
+import SongDetailsDialog from "../Dialogs/SongDetailsDialog";
 import { useGetSongsAndMaterialID } from "../../hooks/useSongs";
 
 const SongCategory = ({ onMaterialSelection }) => {
