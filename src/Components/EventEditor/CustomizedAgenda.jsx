@@ -3,7 +3,7 @@ import { useUpdateEventFlow } from "../../hooks/useEventFlow";
 import MembersDialogs from "../Dialogs/MembersDialogs";
 import MaterialsDialog from "../Dialogs/MaterialsDialog";
 import { useGetSongByID } from "../../hooks/useSongs";
-import SongDetailsDialog from "../Dialogs/songDetailsDialog";
+import SongDetailsDialog from "../Dialogs/SongDetailsDialog";
 
 const editIconButton =
   "bg-inkwell/10 hover:bg-brass hover:text-inkwell text-inkwell/60 rounded p-1.5 transition-colors";
