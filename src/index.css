@@ -1,1 +1,26 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Karla:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap");
 @import "tailwindcss";
+
+@theme {
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-sans: "Karla", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --color-ink: #171b24;
+  --color-pew: #232a38;
+  --color-pew-light: #2c3446;
+  --color-paper: #f4efdd;
+  --color-paper-dim: #eae2c8;
+  --color-brass: #c9a227;
+  --color-brass-light: #e0bf52;
+  --color-ember: #a6432b;
+  --color-ember-light: #c25a3f;
+  --color-sage: #6f8272;
+  --color-parchment: #ede7d3;
+  --color-inkwell: #2a2416;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-ink);
+}

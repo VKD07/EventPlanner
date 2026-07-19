@@ -29,16 +29,21 @@ const EventMembersDetails = () => {
   }, [teamsData]);
 
   return (
-    <div className="bg-amber-600 rounded-2xl mt-20 h-auto lg:mt-[81px]">
+    <div className="w-full bg-pew rounded-2xl shadow-xl border border-brass/15 p-6 hover:shadow-2xl transition-shadow">
       <ConsoleDebug componentName="EventMembersDetails" />
-      <h1 className="pt-5 pl-5 font-bold">TEAMS:</h1>
-      <div className="flex flex-col p-4 gap-3 overflow-y-auto max-h-[700px]">
+      <h2 className="font-display text-lg font-semibold text-parchment mb-4">Teams</h2>
+      <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-pew-light scrollbar-track-transparent">
         {teams.length > 0 ? (
           teams.map((team) => (
             <TeamDetails key={team.id} teamName={team.name} members={team.members} />
           ))
         ) : (
-          <h1>NO TEAMS CREATED</h1>
+          <div className="text-center py-8">
+            <div className="w-10 h-10 mx-auto rounded-full border-2 border-dashed border-brass/30 flex items-center justify-center mb-3">
+              <span className="font-display text-brass/50">§</span>
+            </div>
+            <p className="text-sm text-parchment/40">No teams created yet</p>
+          </div>
         )}
       </div>
     </div>

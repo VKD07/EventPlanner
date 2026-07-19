@@ -1,4 +1,3 @@
-import { useMutation } from "@tanstack/react-query";
 import {
   useAddMemberIntoTeam,
   useRemoveMemberFromTeam,
@@ -7,16 +6,15 @@ import {
 } from "../../hooks/useTeams";
 import MembersDialogs from "../Dialogs/MembersDialogs";
 import TeamEditorMember from "./TeamEditorMember";
-import { useState, useEffect, use } from "react";
+import { useState, useEffect } from "react";
 
 const TeamEditor = ({ teamID, teamName, members }) => {
   const [initTeamName, setTeamName] = useState(teamName);
 
-  
   useEffect(() => {
     setTeamName(teamName);
   }, [teamName]);
-  
+
   const addMemberMutation = useAddMemberIntoTeam();
   const removeMemberMutation = useRemoveMemberFromTeam();
   const teamNameMutation = useUpdateTeamName();
@@ -42,7 +40,6 @@ const TeamEditor = ({ teamID, teamName, members }) => {
     );
   }
 
-
   function handleTeamNameChange() {
     teamNameMutation.mutate(
       { team_id: teamID, team_name: initTeamName },
@@ -65,12 +62,12 @@ const TeamEditor = ({ teamID, teamName, members }) => {
   }
 
   return (
-    <div className="bg-amber-400 rounded flex flex-wrap flex-col p-3 m-3">
-      <form className="flex flex-row gap-2 flex-wrap">
-        <label className="font font-bold">Team name:</label>
+    <div className="bg-pew-light/40 border border-brass/10 rounded-xl flex flex-col p-4">
+      <form className="flex flex-row items-center gap-2 flex-wrap">
+        <label className="text-[11px] font-semibold uppercase tracking-wide text-parchment/40">Team name</label>
         <input
           type="text"
-          className="bg-amber-200 w-30 rounded-md flex pl-2"
+          className="bg-ink border border-brass/20 focus:border-brass focus:outline-none text-parchment w-32 rounded-md px-2 py-1 text-sm"
           onBlur={handleTeamNameChange}
           onChange={handleOnChange}
           value={initTeamName}
@@ -87,20 +84,20 @@ const TeamEditor = ({ teamID, teamName, members }) => {
             />
           ))
         ) : (
-          <h1 className="text-gray-500 text-sm italic">
+          <p className="text-parchment/40 text-sm italic">
             No members in this team
-          </h1>
+          </p>
         )}
       </div>
 
       <div className="flex gap-2 justify-end mt-3">
         <MembersDialogs
-          buttonName={"ADD"}
+          buttonName={"Add"}
           onSelectMember={onSelectMember}
-          buttonStyle={"bg-amber-600 rounded p-2 hover:bg-amber-900"}
+          buttonStyle={"bg-brass hover:bg-brass-light text-inkwell text-sm font-semibold rounded-md px-3 py-1.5 transition-colors"}
         />
-        <button onClick={onDeleteTeam} className="bg-amber-600 rounded p-2 hover:bg-amber-900">
-          DELETE
+        <button onClick={onDeleteTeam} className="bg-ember hover:bg-ember-light text-white text-sm rounded-md px-3 py-1.5 transition-colors">
+          Delete
         </button>
       </div>
     </div>

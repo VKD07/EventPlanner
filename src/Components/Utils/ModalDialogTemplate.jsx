@@ -19,8 +19,8 @@ const ModalDialogTemplate = ({
         <Dialog.Overlay className="fixed inset-0 bg-black/50" />
         <Dialog.Content
           className="fixed bg-amber-200 shadow rounded-2xl
-          top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 
-          p-8 mt-10 max-h-[90vh] min-w-[1000px] overflow-y-auto"
+          top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+          p-4 md:p-8 mt-4 md:mt-10 max-h-[90vh] w-[95vw] md:w-auto md:min-w-[1000px] overflow-y-auto"
         >
           <Dialog.Close asChild>
             <button

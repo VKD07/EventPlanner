@@ -1,32 +1,37 @@
-import { sup } from "framer-motion/client";
 import { supabase } from "./supabase";
-import { get } from "react-hook-form";
 
 const STORAGE_NAME = "songs";
 
-export async function uploadSong(title, author, lyrics, audioFile) {
-  const fileName = `${Date.now()}_${audioFile.name}`;
+export async function uploadSong({ title, author, lyrics, chords, originalKey, videoUrl, audioFile }) {
+  let audioUrl = null;
 
-  const { error: uploadError } = await supabase.storage
-    .from(STORAGE_NAME)
-    .upload(`uploads/${fileName}`, audioFile, {
-      contentType: audioFile.type,
-    });
+  if (audioFile) {
+    const fileName = `${Date.now()}_${audioFile.name}`;
 
+    const { error: uploadError } = await supabase.storage
+      .from(STORAGE_NAME)
+      .upload(`uploads/${fileName}`, audioFile, {
+        contentType: audioFile.type,
+      });
 
-  if (uploadError) {
-    throw new Error(
-      "Failed to upload song to Supabase Storage: " + uploadError.message
-    );
+    if (uploadError) {
+      throw new Error(
+        "Failed to upload song to Supabase Storage: " + uploadError.message
+      );
+    }
+
+    console.log("✅ Song uploaded successfully with filename:", fileName);
+    audioUrl = `uploads/${fileName}`;
   }
-
-  console.log("✅ Song uploaded successfully with filename:", fileName);
 
   const { error: dbError } = await supabase.from("songs").insert({
     author,
     title,
     lyrics,
-    audioUrl: `uploads/${fileName}`,
+    chords: chords || null,
+    originalKey: originalKey || null,
+    videoUrl: videoUrl || null,
+    audioUrl,
   });
 
   if (dbError) {
@@ -43,7 +48,56 @@ export async function uploadSong(title, author, lyrics, audioFile) {
     throw new Error("Failed to add song to agenda materials: " + error.message);
   }
 
-  return { fileName };
+  return { songId: songID.id };
+}
+
+export async function updateSong({ id, title, author, lyrics, chords, originalKey, videoUrl, audioFile }) {
+  const update = {
+    title,
+    author,
+    lyrics,
+    chords: chords || null,
+    originalKey: originalKey || null,
+    videoUrl: videoUrl || null,
+  };
+
+  if (audioFile) {
+    const fileName = `${Date.now()}_${audioFile.name}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from(STORAGE_NAME)
+      .upload(`uploads/${fileName}`, audioFile, {
+        contentType: audioFile.type,
+      });
+
+    if (uploadError) {
+      throw new Error(
+        "Failed to upload song to Supabase Storage: " + uploadError.message
+      );
+    }
+
+    update.audioUrl = `uploads/${fileName}`;
+  }
+
+  const { error } = await supabase.from("songs").update(update).eq("id", id);
+
+  if (error) {
+    throw new Error("Failed to update song in Supabase: " + error.message);
+  }
+
+  const { error: materialError } = await supabase
+    .from("agenda_materials")
+    .update({ material_name: title })
+    .eq("material_type", "song")
+    .eq("material_id", id);
+
+  if (materialError) {
+    throw new Error(
+      "Failed to update song's agenda material name in Supabase: " + materialError.message
+    );
+  }
+
+  return { songId: id };
 }
 
 export async function getSongs() {

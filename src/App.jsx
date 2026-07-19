@@ -2,6 +2,8 @@ import EventsDashboard from "./Components/EventDashboard/EventsDashboard";
 import EventEditor from "./Components/EventEditor/EventEditor";
 import EventLayout from "./Components/EventLayout";
 import Login from "./Components/Authentication/Login";
+import SongsPage from "./Components/Songs/SongsPage";
+import MembersPage from "./Components/Members/MembersPage";
 import { Routes, Route } from "react-router-dom";
 import { EventsProvider } from "./Context/EventDataContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -16,6 +18,8 @@ function App() {
           <Route index element={<Login />} />
           <Route path="/" element={<EventLayout />}>
             <Route path="dashboard" element={<EventsDashboard />} />
+            <Route path="songs" element={<SongsPage />} />
+            <Route path="members" element={<MembersPage />} />
             <Route path="edit/:eventId" element={<EventEditor />} />
           </Route>
         </Routes>

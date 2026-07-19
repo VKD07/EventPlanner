@@ -1,14 +1,27 @@
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
-import { uploadSong, getSongs, getSongAudioUrl, getSongIdByTitleAndAuthor, getSongsAndMaterialID, getSongByID } from "../api/songs";
+import { uploadSong, updateSong, getSongs, getSongAudioUrl, getSongIdByTitleAndAuthor, getSongsAndMaterialID, getSongByID } from "../api/songs";
 
 export function useAddSong() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ title, author, lyrics, audioFile }) =>
-      uploadSong(title, author, lyrics, audioFile),
+    mutationFn: (songDetails) => uploadSong(songDetails),
     onSuccess: () => {
       queryClient.invalidateQueries(["songs"]);
+      queryClient.invalidateQueries(["songs-with-material-id"]);
+    },
+  });
+}
+
+export function useUpdateSong() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (songDetails) => updateSong(songDetails),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries(["songs"]);
+      queryClient.invalidateQueries(["songs-with-material-id"]);
+      queryClient.invalidateQueries(["song-by-id", variables.id]);
     },
   });
 }
@@ -34,6 +47,7 @@ export function useSongAudioUrl(audioPath) {
   return useQuery({
     queryKey: ["song-audio-url", audioPath],
     queryFn: () => getSongAudioUrl(audioPath),
+    enabled: !!audioPath,
     staleTime: 1000 * 60 * 60,
   });
 }

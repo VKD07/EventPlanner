@@ -1,24 +1,48 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import * as Dialog from "@radix-ui/react-dialog";
-import { useAddSong } from "../../hooks/useSongs";
-import { useGetAllTags, useAddTagsToSongByTitleAndAuthor } from "../../hooks/useTags";
+import { useAddSong, useUpdateSong } from "../../hooks/useSongs";
+import { useGetAllTags, useTagBySongID, useUpdateSongTags } from "../../hooks/useTags";
+import { KEYS } from "../../utils/chords";
+import VocalGuidesSection from "../Songs/VocalGuidesSection";
 
-const UploadSongDialog = ({ buttonName, buttonStyle, icon }) => {
+const fieldClass =
+  "bg-white border border-inkwell/15 rounded-md p-2 w-full text-inkwell placeholder:text-inkwell/40 focus:outline-none focus:ring-2 focus:ring-brass/50 focus:border-brass";
+
+const UploadSongDialog = ({ buttonName, buttonStyle, icon, song }) => {
+  const isEdit = !!song;
   const { register, handleSubmit, reset } = useForm();
-  const [isUploading, setIsUploading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [selectedTags, setSelectedTags] = useState([]);
   const [remainingTags, setRemainingTags] = useState([]);
+  const [originalTagNames, setOriginalTagNames] = useState([]);
   const [errors, setErrors] = useState({});
 
   const { data: tags } = useGetAllTags();
+  const { data: existingTags } = useTagBySongID(song?.id);
   const uploadSongMutation = useAddSong();
-  const addTagsToSongMutation = useAddTagsToSongByTitleAndAuthor();
+  const updateSongMutation = useUpdateSong();
+  const updateSongTagsMutation = useUpdateSongTags();
 
-  useEffect(() => {
-    if (tags) setRemainingTags(tags);
-  }, [tags]);
+  const formDefaults = (s) => ({
+    title: s?.title || "",
+    author: s?.author || "",
+    lyrics: s?.lyrics || "",
+    chords: s?.chords || "",
+    originalKey: s?.originalKey || "C",
+    videoUrl: s?.videoUrl || "",
+  });
+
+  const resetTagSelection = () => {
+    if (!tags) return;
+    const names = isEdit && existingTags ? existingTags.map((t) => t.tag_name) : [];
+    setOriginalTagNames(names);
+    setSelectedTags(names);
+    setRemainingTags(tags.filter((t) => !names.includes(t.name)));
+  };
+
+  useEffect(resetTagSelection, [tags, existingTags, isEdit]);
 
   const handleTagSelect = (e) => {
     const selectedTag = e.target.value;
@@ -39,59 +63,76 @@ const UploadSongDialog = ({ buttonName, buttonStyle, icon }) => {
     const newErrors = {};
     if (!data.title?.trim()) newErrors.title = "Song title is required.";
     if (!data.lyrics?.trim()) newErrors.lyrics = "Lyrics are required.";
-    if (selectedTags.length === 0) newErrors.tags = "Select at least one tag.";
-    if (!data.audioFile?.[0]) newErrors.audioFile = "An audio file is required.";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const applyTagChanges = (songId) => {
+    const addTagIds = selectedTags
+      .filter((name) => !originalTagNames.includes(name))
+      .map((name) => tags.find((t) => t.name === name)?.id)
+      .filter(Boolean);
+    const removeTagIds = originalTagNames
+      .filter((name) => !selectedTags.includes(name))
+      .map((name) => tags.find((t) => t.name === name)?.id)
+      .filter(Boolean);
+
+    if (addTagIds.length > 0 || removeTagIds.length > 0) {
+      updateSongTagsMutation.mutate({ songId, addTagIds, removeTagIds });
+    }
   };
 
   const onSubmit = (data) => {
     if (!validateForm(data)) return;
 
-    const file = data.audioFile[0];
-    setIsUploading(true);
+    const file = data.audioFile?.[0] || null;
+    setIsSaving(true);
     setIsSuccess(false);
 
-    uploadSongMutation.mutate(
-      {
-        title: data.title.trim(),
-        author: data.author?.trim() || null,
-        lyrics: data.lyrics.trim(),
-        audioFile: file,
-      },
-      {
-        onSuccess: () => {
-          const tagIDs = selectedTags
-            .map((tagName) => tags.find((t) => t.name === tagName)?.id)
-            .filter(Boolean);
-          addTagsToSongMutation.mutate({
-            title: data.title.trim(),
-            author: data.author?.trim() || null,
-            tagIDs,
-          });
-          setIsUploading(false);
-          setIsSuccess(true);
-          reset();
+    const payload = {
+      title: data.title.trim(),
+      author: data.author?.trim() || null,
+      lyrics: data.lyrics.trim(),
+      chords: data.chords?.trim() || null,
+      originalKey: data.chords?.trim() ? data.originalKey : null,
+      videoUrl: data.videoUrl?.trim() || null,
+      audioFile: file,
+    };
+
+    const options = {
+      onSuccess: (result) => {
+        applyTagChanges(result.songId);
+        setIsSaving(false);
+        setIsSuccess(true);
+        if (!isEdit) {
+          reset(formDefaults());
           setSelectedTags([]);
           setRemainingTags(tags);
-          setErrors({});
-        },
-        onError: (err) => {
-          setIsUploading(false);
-          setIsSuccess(false);
-          console.error("❌ Error uploading song:", err);
-        },
-      }
-    );
+          setOriginalTagNames([]);
+        }
+        setErrors({});
+      },
+      onError: (err) => {
+        setIsSaving(false);
+        setIsSuccess(false);
+        console.error(`❌ Error ${isEdit ? "updating" : "uploading"} song:`, err);
+      },
+    };
+
+    if (isEdit) {
+      updateSongMutation.mutate({ id: song.id, ...payload }, options);
+    } else {
+      uploadSongMutation.mutate(payload, options);
+    }
   };
 
   const handleDialogChange = (open) => {
-    if (!open) {
-      setIsUploading(false);
+    if (open) {
+      reset(formDefaults(song));
+      resetTagSelection();
+    } else {
+      setIsSaving(false);
       setIsSuccess(false);
-      setSelectedTags([]);
-      setRemainingTags(tags);
-      reset();
       setErrors({});
     }
   };
@@ -106,38 +147,40 @@ const UploadSongDialog = ({ buttonName, buttonStyle, icon }) => {
       </Dialog.Trigger>
 
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/50" />
+        <Dialog.Overlay className="fixed inset-0 bg-ink/60 backdrop-blur-sm z-[60]" />
         <Dialog.Content
-          className="fixed bg-amber-200 shadow rounded-2xl
-          top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 
-          p-8 mt-10 max-h-[90vh] min-w-[1000px] overflow-y-auto"
+          className="fixed z-[60] bg-paper shadow-2xl border-t-4 border-brass rounded-2xl
+          top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+          p-4 md:p-8 mt-4 md:mt-10 max-h-[90vh] w-[95vw] md:w-auto md:min-w-[600px] overflow-y-auto"
         >
           <Dialog.Close asChild>
             <button
-              className="absolute top-4 right-4 bg-red-500 text-white rounded-full px-3 py-1 hover:bg-red-600"
+              className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-ember text-white hover:bg-ember-light transition-colors"
               aria-label="Close"
             >
               ✕
             </button>
           </Dialog.Close>
 
-          <Dialog.Title className="text-xl font-bold mb-4">UPLOAD A SONG:</Dialog.Title>
+          <Dialog.Title className="font-display text-xl font-semibold text-inkwell mb-4">
+            {isEdit ? "Edit Song" : "Upload a Song"}
+          </Dialog.Title>
 
-          <form className="flex flex-col gap-4 p-2" onSubmit={handleSubmit(onSubmit)}>
+          <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
             <div>
               <input
                 {...register("title")}
                 placeholder="Song Title"
-                className="bg-amber-400 rounded-md p-2 w-full"
+                className={fieldClass}
               />
-              {errors.title && <p className="text-red-600 text-sm mt-1">{errors.title}</p>}
+              {errors.title && <p className="text-ember text-sm mt-1">{errors.title}</p>}
             </div>
 
             <div>
               <input
                 {...register("author")}
                 placeholder="Author"
-                className="bg-amber-400 rounded-md p-2 w-full"
+                className={fieldClass}
               />
             </div>
 
@@ -145,24 +188,58 @@ const UploadSongDialog = ({ buttonName, buttonStyle, icon }) => {
               <textarea
                 {...register("lyrics")}
                 placeholder="Lyrics"
-                className="bg-amber-400 rounded-md p-2 w-full"
+                className={fieldClass}
               />
-              {errors.lyrics && <p className="text-red-600 text-sm mt-1">{errors.lyrics}</p>}
+              {errors.lyrics && <p className="text-ember text-sm mt-1">{errors.lyrics}</p>}
             </div>
 
             <div>
-              <p className="font-semibold">Selected Tags:</p>
-              <div className="flex flex-wrap gap-2 mt-2">
+              <label className="text-[11px] font-semibold uppercase tracking-wide text-inkwell/40 mb-1 block">
+                Chords (optional)
+              </label>
+              <textarea
+                {...register("chords")}
+                placeholder={"[Verse 1]\nD                  A\n  When the music fades all is"}
+                rows={6}
+                className={`${fieldClass} font-mono text-sm`}
+              />
+              <p className="text-inkwell/40 text-xs mt-1">
+                Put the chord line directly above its lyric line, spaced to line up. Wrap section names in brackets, e.g. [Chorus].
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <label className="text-[11px] font-semibold uppercase tracking-wide text-inkwell/40">
+                Original key
+              </label>
+              <select {...register("originalKey")} className={`${fieldClass} w-20`}>
+                {KEYS.map((key) => (
+                  <option key={key} value={key}>{key}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <input
+                {...register("videoUrl")}
+                placeholder="Video URL (optional)"
+                className={fieldClass}
+              />
+            </div>
+
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-inkwell/40 mb-1">Tags (optional)</p>
+              <div className="flex flex-wrap gap-2">
                 {selectedTags.length > 0 ? (
                   selectedTags.map((tag, index) => (
                     <span
                       key={index}
-                      className="bg-amber-700 text-white rounded-md px-3 py-1 flex items-center gap-2"
+                      className="bg-brass text-inkwell rounded-md px-3 py-1 flex items-center gap-2 text-sm font-medium"
                     >
                       {tag}
                       <button
                         type="button"
-                        className="text-xs bg-red-500 rounded-full px-2 hover:bg-red-600"
+                        className="text-xs bg-ember text-white rounded-full w-4 h-4 flex items-center justify-center hover:bg-ember-light"
                         onClick={() => handleRemoveTag(tag)}
                       >
                         ✕
@@ -170,17 +247,16 @@ const UploadSongDialog = ({ buttonName, buttonStyle, icon }) => {
                     </span>
                   ))
                 ) : (
-                  <span className="text-gray-700 italic">No tags selected</span>
+                  <span className="text-inkwell/40 italic text-sm">No tags selected</span>
                 )}
               </div>
-              {errors.tags && <p className="text-red-600 text-sm mt-1">{errors.tags}</p>}
             </div>
 
             <div>
               <select
                 id="tag"
                 onChange={handleTagSelect}
-                className="bg-amber-400 rounded-md p-2 w-[30%]"
+                className={`${fieldClass} md:w-[50%]`}
               >
                 <option value="">-- Choose a tag --</option>
                 {remainingTags?.map((tag, index) => (
@@ -192,28 +268,35 @@ const UploadSongDialog = ({ buttonName, buttonStyle, icon }) => {
             </div>
 
             <div>
+              <label className="text-[11px] font-semibold uppercase tracking-wide text-inkwell/40 mb-1 block">
+                {isEdit ? "Replace audio file (optional)" : "Audio file (optional)"}
+              </label>
               <input
                 {...register("audioFile")}
                 type="file"
                 accept="audio/*"
-                className="bg-amber-400 rounded-md p-2 w-[30%]"
+                className={`${fieldClass} md:w-[50%]`}
               />
-              {errors.audioFile && <p className="text-red-600 text-sm mt-1">{errors.audioFile}</p>}
+              {isEdit && song?.audioUrl && (
+                <p className="text-inkwell/40 text-xs mt-1">Leave empty to keep the current audio file.</p>
+              )}
             </div>
 
-            <div className="font-semibold h-6">
-              {isUploading ? (
-                <span className="text-blue-700">Uploading...</span>
+            {isEdit && <VocalGuidesSection songId={song.id} />}
+
+            <div className="font-medium h-6 text-sm">
+              {isSaving ? (
+                <span className="text-sage">Saving...</span>
               ) : isSuccess ? (
-                <span className="text-green-700">✅ Successfully uploaded!</span>
+                <span className="text-sage">{isEdit ? "Song updated!" : "Successfully uploaded!"}</span>
               ) : null}
             </div>
 
             <input
               type="submit"
-              value={isUploading ? "Uploading..." : "Upload"}
-              disabled={isUploading}
-              className="bg-amber-600 text-white rounded-md p-2 hover:bg-amber-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              value={isSaving ? "Saving..." : isEdit ? "Save Changes" : "Upload"}
+              disabled={isSaving}
+              className="bg-brass hover:bg-brass-light text-inkwell font-semibold rounded-md p-2 cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             />
           </form>
         </Dialog.Content>

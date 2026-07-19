@@ -1,28 +1,29 @@
 import { createContext, useContext, useState } from "react";
+import { randomUUID } from "../utils/uuid";
 
 const EventsContext = createContext();
 
 export function EventsProvider({ children }) {
   const skills = [
-    { id: crypto.randomUUID(), name: "Singing" },
-    { id: crypto.randomUUID(), name: "Dancing" },
-    { id: crypto.randomUUID(), name: "Tech" },
+    { id: randomUUID(), name: "Singing" },
+    { id: randomUUID(), name: "Dancing" },
+    { id: randomUUID(), name: "Tech" },
   ];
 
   const role = [
-    { id: crypto.randomUUID(), name: "Leader" },
-    { id: crypto.randomUUID(), name: "Coordinator" },
-    { id: crypto.randomUUID(), name: "Runner" },
+    { id: randomUUID(), name: "Leader" },
+    { id: randomUUID(), name: "Coordinator" },
+    { id: randomUUID(), name: "Runner" },
   ];
 
   const memberFilters = [
-    { id: crypto.randomUUID(), name: "Skills", elements: skills },
-    { id: crypto.randomUUID(), name: "Role", elements: role },
+    { id: randomUUID(), name: "Skills", elements: skills },
+    { id: randomUUID(), name: "Role", elements: role },
   ];
 
   const initMembers = [
     {
-      id: crypto.randomUUID(),
+      id: randomUUID(),
       name: "John Doe",
       email: "@gmail.com",
       number: "+971553279096",
@@ -30,7 +31,7 @@ export function EventsProvider({ children }) {
       skills: [skills[0].name, skills[1].name],
     },
     {
-      id: crypto.randomUUID(),
+      id: randomUUID(),
       name: "Mike Butowski",
       email: "@gmail.com",
       number: "+971553279096",
@@ -38,7 +39,7 @@ export function EventsProvider({ children }) {
       skills: [skills[1].name, skills[2].name],
     },
     {
-      id: crypto.randomUUID(),
+      id: randomUUID(),
       name: "Sally",
       email: "@gmail.com",
       number: "+971553279096",
@@ -46,7 +47,7 @@ export function EventsProvider({ children }) {
       skills: [skills[1].name, skills[0].name],
     },
     {
-      id: crypto.randomUUID(),
+      id: randomUUID(),
       name: "Bins Delgado",
       email: "@gmail.com",
       number: "+971553279096",
@@ -102,12 +103,12 @@ export function EventsProvider({ children }) {
       eventFlow: eventFlow1,
       teams: [
         {
-          id: crypto.randomUUID(),
+          id: randomUUID(),
           name: "Clean-Up Crew",
           members: [initMembers[0], initMembers[1], initMembers[2]],
         },
         {
-          id: crypto.randomUUID(),
+          id: randomUUID(),
           name: "Singing Crew",
           members: [initMembers[1], initMembers[0], initMembers[2]],
         },
@@ -125,12 +126,12 @@ export function EventsProvider({ children }) {
       eventFlow: eventFlow2,
       teams: [
         {
-          id: crypto.randomUUID(),
+          id: randomUUID(),
           name: "Singing Crew",
           members: [initMembers[1], initMembers[0], initMembers[2]],
         },
         {
-          id: crypto.randomUUID(),
+          id: randomUUID(),
           name: "Clean-Up Crew",
           members: [initMembers[0], initMembers[1], initMembers[2]],
         },

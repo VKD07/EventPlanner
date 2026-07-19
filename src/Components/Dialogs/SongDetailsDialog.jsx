@@ -1,11 +1,15 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { useSongAudioUrl } from "../../hooks/useSongs";
 import { useTagBySongID } from "../../hooks/useTags";
+import ChordChart from "../Songs/ChordChart";
+import VocalGuidesSection from "../Songs/VocalGuidesSection";
+import { getYouTubeEmbedUrl } from "../../utils/video";
 
 const SongDetailsDialog = ({ buttonName, buttonStyle, icon, songDetails }) => {
 
   const {data : audioUrl} = useSongAudioUrl(songDetails.audioUrl);
   const {data: tags} = useTagBySongID(songDetails.id);
+  const embedUrl = getYouTubeEmbedUrl(songDetails.videoUrl);
 
   if (songDetails) {
     return (
@@ -18,79 +22,97 @@ const SongDetailsDialog = ({ buttonName, buttonStyle, icon, songDetails }) => {
         </Dialog.Trigger>
 
         <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 bg-black/50" />
+          <Dialog.Overlay className="fixed inset-0 bg-ink/60 backdrop-blur-sm z-[60]" />
 
           <Dialog.Content
-            className="fixed bg-amber-200 shadow rounded-2xl
-          top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 
-          p-8 mt-10 max-h-[90vh] min-w-[1000px] overflow-y-auto"
+            className="fixed z-[60] bg-paper shadow-2xl border-t-4 border-brass rounded-2xl
+          top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+          p-4 md:p-8 mt-4 md:mt-10 max-h-[90vh] w-[95vw] md:w-auto md:min-w-[1000px] overflow-y-auto"
           >
             <Dialog.Close asChild>
               <button
-                className="absolute top-4 right-4 bg-red-500 text-white rounded-full px-3 py-1 hover:bg-red-600"
+                className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-ember text-white hover:bg-ember-light transition-colors"
                 aria-label="Close"
               >
                 ✕
               </button>
             </Dialog.Close>
 
-            <Dialog.Title className="text-xl mb-4">Song Details:</Dialog.Title>
+            <Dialog.Title className="font-display text-xl font-semibold text-inkwell mb-1">
+              {songDetails.title}
+            </Dialog.Title>
+            {songDetails.author && (
+              <p className="text-inkwell/60 text-sm mb-4">{songDetails.author}</p>
+            )}
 
-            <div className="bg-amber-300 p-4 rounded-md flex flex-row gap-2">
-              <div className="bg-amber-200 rounded-md w-[70%] flex flex-col gap-2 items-center">
-                <span>Title: {songDetails.title}</span>
-                <span>Author: {songDetails.author}</span>
-                <span>
-                  Lyrics:
-                  <br />
-                  {songDetails.lyrics}
-                </span>
-              </div>
-              <div className="flex flex-col gap-4 w-[30%]">
-                {/* Audio Section */}
-                <div className="bg-amber-200 rounded-md">
-                  <div className="flex flex-col gap-1">
-                    <h1 className="font-bold">Audio:</h1>
-                    <div className="flex flex-col gap-2">
-                      {/* {songDetails.audio.map((audio, index) => (
-                        <div
-                          key={index}
-                          className="bg-green-400 rounded-md text-sm text-center"
-                        >
-                          {audio}
-                        </div>
-                      ))} */}
-
-
-                      {audioUrl && (
-                        <audio className="w-full" controls>
-                          <source src={audioUrl} type="audio/mpeg" />
-                          Your browser does not support the audio element.
-                        </audio>
-                      )}
-                      
-                    </div>
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="w-full md:w-[65%] flex flex-col gap-3">
+                {songDetails.chords ? (
+                  <ChordChart chords={songDetails.chords} originalKey={songDetails.originalKey} />
+                ) : (
+                  <div className="bg-white border border-inkwell/10 rounded-lg p-4">
+                    <span className="text-inkwell/80 text-sm leading-relaxed whitespace-pre-line">
+                      {songDetails.lyrics}
+                    </span>
                   </div>
-                </div>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-4 w-full md:w-[35%]">
+                {songDetails.videoUrl && (
+                  <div>
+                    <h1 className="text-[11px] font-semibold uppercase tracking-wide text-inkwell/40 mb-1">Video</h1>
+                    {embedUrl && (
+                      <div className="aspect-video w-full rounded-lg overflow-hidden border border-inkwell/10 mb-1">
+                        <iframe
+                          className="w-full h-full"
+                          src={embedUrl}
+                          title={`${songDetails.title} video`}
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        />
+                      </div>
+                    )}
+                    <a
+                      href={songDetails.videoUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-brass hover:text-brass-light underline text-sm font-medium"
+                    >
+                      {embedUrl ? "Having trouble? Watch on YouTube" : "Open video link"}
+                    </a>
+                  </div>
+                )}
+
                 {/* Audio Section */}
+                <div>
+                  <h1 className="text-[11px] font-semibold uppercase tracking-wide text-inkwell/40 mb-1">Audio</h1>
+                  {audioUrl && (
+                    <audio className="w-full" controls>
+                      <source src={audioUrl} type="audio/mpeg" />
+                      Your browser does not support the audio element.
+                    </audio>
+                  )}
+                </div>
 
                 {/* Tags section */}
                 <div className="flex flex-col gap-1">
-                  <h1 className="font-bold">Tags:</h1>
-                  <div className="grid grid-cols-3 gap-2">
+                  <h1 className="text-[11px] font-semibold uppercase tracking-wide text-inkwell/40">Tags</h1>
+                  <div className="flex flex-wrap gap-2">
                     {tags?.map((tag, index) => (
-                      <div
+                      <span
                         key={index}
-                        className="bg-blue-500 rounded-md text-sm text-center"
+                        className="bg-brass/15 text-inkwell rounded-md text-xs px-2 py-1"
                       >
                         {tag.tag_name}
-                      </div>
+                      </span>
                     ))}
                   </div>
                 </div>
-                {/* Tags section */}
               </div>
             </div>
+
+            <VocalGuidesSection songId={songDetails.id} readOnly />
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import ConsoleDebug from "../ConsoleDebug";
 
 const Modal = ({ isOpen, onClose, children }) => {
@@ -16,21 +16,22 @@ const Modal = ({ isOpen, onClose, children }) => {
   return (
     // Overlay
     <div
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+      className="fixed inset-0 bg-ink/60 backdrop-blur-sm flex items-center justify-center z-[60]"
       onClick={onClose} // close if you click backdrop
     >
       <ConsoleDebug componentName="Modal" />
       {/* Modal box */}
       <div
-        className="bg-white rounded-lg shadow-lg p-6 w-[90%] max-w-md relative"
+        className="bg-paper rounded-lg shadow-2xl border-t-4 border-brass p-6 w-[90%] max-w-md relative"
         onClick={(e) => e.stopPropagation()} // stop click from closing when inside
       >
         {/* Close button */}
         <button
-          className="absolute top-2 right-2 text-gray-500 hover:text-black"
+          className="absolute top-3 right-3 w-7 h-7 flex items-center justify-center rounded-full text-inkwell/50 hover:text-inkwell hover:bg-inkwell/10 transition-colors"
           onClick={onClose}
+          aria-label="Close"
         >
-          ✖
+          ✕
         </button>
 
         {children}

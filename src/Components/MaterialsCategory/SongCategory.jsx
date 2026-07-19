@@ -1,59 +1,46 @@
 import SongDetailsDialog from "../Dialogs/songDetailsDialog";
-import UploadSongDialog from "../Dialogs/UploadSongDialog";
 import { useGetSongsAndMaterialID } from "../../hooks/useSongs";
 
 const SongCategory = ({ onMaterialSelection }) => {
 
-  const { data: songsData, isLoading, error } = useGetSongsAndMaterialID();
+  const { data: songsData } = useGetSongsAndMaterialID();
 
-  
   if (songsData) {
-    
-    return (
-      <div className="flex flex-row gap-4 items-start">
-        {/* filters */}
-        <div className="bg-amber-300 rounded-md p-2 w-[20%]">
-          <span>filters:</span>
 
-          <UploadSongDialog
-            buttonName={"Upload A Song"}
-            buttonStyle={"rounded-md bg-amber-500 p-2 w-full"}
-          />
-        </div>
-        <div className="bg-amber-300 flex flex-wrap font-bold mb-2 w-[80%] rounded-md max-h-[60vh] overflow-y-auto">
+    return (
+      <div className="flex flex-col gap-4 items-start">
+        <div className="bg-white border border-inkwell/10 flex flex-wrap mb-2 w-full rounded-md max-h-[60vh] overflow-y-auto">
           {/* list of songs */}
-          <h1 className="w-full pl-2 pt-2">Song List:</h1>
-          <div className="flex flex-col gap-2 w-full p-2">
+          <h1 className="font-display w-full pl-3 pt-3 text-inkwell font-semibold">Song List</h1>
+          <div className="flex flex-col gap-2 w-full p-3">
             {songsData.map((song, index) => (
               <div
                 key={index}
-                className="bg-amber-600 rounded-md w-full pl-2 py-2"
+                className="bg-parchment/60 border border-inkwell/5 rounded-md w-full pl-3 py-2"
               >
-                <div className="flex flex-row items-center justify-between">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
                   {/* Left side: song and author info */}
 
-                  <div className="flex flex-row items-center gap-15">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 md:gap-4">
                     <div className="flex flex-row items-center gap-1">
-                      <span className="font-semibold">Song:</span>
-                      <span>{song.title}</span>
+                      <span className="font-semibold text-inkwell text-sm">{song.title}</span>
                     </div>
 
                     <div className="flex flex-row items-center gap-1">
-                      <span className="font-semibold">Author:</span>
-                      <span>{song.author}</span>
+                      <span className="text-inkwell/60 text-sm">{song.author}</span>
                     </div>
                   </div>
 
                   {/* Right side: buttons */}
-                  <div className="flex flex-row items-center gap-2 mr-2">
+                  <div className="flex flex-row items-center gap-2 md:mr-2">
                     <SongDetailsDialog
-                      buttonName={"VIEW"}
+                      buttonName={"View"}
                       buttonStyle={
-                        "bg-amber-400 rounded-md p-1 text-xs hover:bg-amber-200"
+                        "bg-white border border-inkwell/15 rounded-md px-2 py-1 text-xs hover:border-brass transition-colors"
                       }
                       songDetails={song}
                     />
-                    <button onClick={() => onMaterialSelection({id: song.agenda_material_id, name: song.title})} className="bg-amber-400 rounded-md p-1 text-xs hover:bg-amber-200">
+                    <button onClick={() => onMaterialSelection({id: song.agenda_material_id, name: song.title})} className="bg-brass hover:bg-brass-light text-inkwell rounded-md px-2 py-1 text-xs font-medium transition-colors">
                       Select
                     </button>
                   </div>
@@ -66,7 +53,7 @@ const SongCategory = ({ onMaterialSelection }) => {
     );
   }
 
-  return <div>No Songs available!</div>;
+  return <div className="text-inkwell/40 italic">No songs available yet.</div>;
 };
 
 export default SongCategory;

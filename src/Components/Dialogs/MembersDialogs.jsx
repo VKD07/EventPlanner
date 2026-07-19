@@ -61,35 +61,34 @@ const MembersDialogs = ({ buttonName, onSelectMember, buttonStyle, icon }) => {
       </Dialog.Trigger>
 
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/50" />
+        <Dialog.Overlay className="fixed inset-0 bg-ink/60 backdrop-blur-sm z-[60]" />
 
-        {/* ✅ FIXED HEIGHT DIALOG CONTENT */}
         <Dialog.Content
-          className="fixed bg-amber-200 shadow rounded-2xl
-          top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 
-          w-[60vw] h-[700px] p-6 flex flex-col overflow-hidden"
+          className="fixed z-[60] bg-paper shadow-2xl border-t-4 border-brass rounded-2xl
+          top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+          w-[95vw] md:w-[85vw] lg:w-[60vw] h-[90vh] md:h-[700px] p-4 md:p-6 flex flex-col overflow-hidden"
         >
-          <Dialog.Title className="text-xl mb-2 font-bold">
-            Choose a member:
+          <Dialog.Title className="font-display text-xl mb-2 font-semibold text-inkwell">
+            Choose a member
           </Dialog.Title>
 
           {/* Search Bar */}
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-2 mb-3 bg-white rounded-md border border-inkwell/15 focus-within:ring-2 focus-within:ring-brass/50 focus-within:border-brass px-3">
+            <MagnifyingGlassIcon className="text-inkwell/40" />
             <input
-              className="bg-white rounded border-2 border-amber-500 w-full p-2"
-              placeholder="Search Names"
+              className="w-full py-2 bg-transparent text-inkwell placeholder:text-inkwell/40 focus:outline-none"
+              placeholder="Search names"
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <MagnifyingGlassIcon />
           </div>
 
           {/* Main layout: Filters + Member Grid */}
-          <div className="flex flex-1 gap-3 overflow-hidden">
+          <div className="flex flex-col md:flex-row flex-1 gap-3 overflow-hidden">
             {/* Sidebar Filters */}
-            <aside className="bg-amber-700 flex flex-col gap-2 p-3 w-[240px] rounded text-sm overflow-y-auto">
-              <h1 className="font-bold text-white my-1">Filter:</h1>
+            <aside className="bg-ink flex flex-col gap-2 p-3 w-full md:w-[240px] rounded-lg text-sm overflow-y-auto max-h-[200px] md:max-h-none">
+              <h1 className="font-display font-semibold text-brass-light my-1">Filter</h1>
               {skillsAndRoles?.data?.map((filter, index) => (
                 <MemberFilters
                   key={index}
@@ -103,7 +102,7 @@ const MembersDialogs = ({ buttonName, onSelectMember, buttonStyle, icon }) => {
             </aside>
 
             {/* Scrollable Members Grid */}
-            <div className="grid grid-cols-3 gap-3 flex-1 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-amber-600">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 flex-1 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-brass/40">
               {filteredMembers?.length > 0 ? (
                 filteredMembers.map((member) => (
                   <Member
@@ -113,7 +112,7 @@ const MembersDialogs = ({ buttonName, onSelectMember, buttonStyle, icon }) => {
                   />
                 ))
               ) : (
-                <div className="col-span-3 text-center text-gray-700 mt-6">
+                <div className="col-span-1 sm:col-span-2 lg:col-span-3 text-center text-inkwell/50 mt-6">
                   No members found.
                 </div>
               )}

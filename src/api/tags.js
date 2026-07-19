@@ -18,15 +18,24 @@ export async function getAllTags(){
     return data;
 }
 
-export async function addTagsToSongByTitleAndAuthor(title, author, tagIDs) {
-  
-  const { error } = await supabase.rpc("add_tags_to_song", {
-    song_title: title,
-    song_author: author,
-    tag_ids: tagIDs,
-  });
+export async function addTagToSong(songId, tagId) {
+  const { error } = await supabase
+    .from("song_tags")
+    .insert({ song_id: songId, tag_id: tagId });
 
   if (error) {
-    throw new Error("Failed to add tags to song in Supabase: " + error.message);
+    throw new Error("Failed to add tag to song in Supabase: " + error.message);
+  }
+}
+
+export async function removeTagFromSong(songId, tagId) {
+  const { error } = await supabase
+    .from("song_tags")
+    .delete()
+    .eq("song_id", songId)
+    .eq("tag_id", tagId);
+
+  if (error) {
+    throw new Error("Failed to remove tag from song in Supabase: " + error.message);
   }
 }

@@ -46,44 +46,48 @@ const EventEditor = () => {
   }, [teamsData]);
 
   if (isLoading) {
-    return <div>LOADING....</div>;
+    return (
+      <div className="min-h-screen bg-ink flex items-center justify-center text-parchment/60 font-mono text-sm">
+        Loading…
+      </div>
+    );
   }
 
   const selectedEvent = events.find((event) => event.id === eventId);
 
   function onAddTeam() {
     createTeamForEvent.mutate({ eventID: eventId, teamName: "New Team" });
-
   }
 
   return (
-    <div className="flex flex-col flex-wrap gap-5 mt-20 lg:grid portrait:grid-cols-[70%_15%] landscape:grid-cols-[70%_17%]">
-
-      {/* <div className="bg-amber-200 rounded h-[300px]">Library Elements</div> */}
+    <div className="min-h-screen bg-ink flex flex-col gap-5 pt-24 pb-10 px-4 lg:px-8 lg:grid lg:grid-cols-[70%_28%] lg:gap-[2%]">
       <CustomizedEventFlow selectedEvent={selectedEvent} />
 
-      <div className="bg-amber-900 rounded h-auto">
-        <div className="flex flex-wrap justify-end gap-2 m-3">
+      <div className="bg-pew rounded-2xl h-auto border border-brass/15">
+        <div className="flex items-center justify-between p-4 border-b border-brass/15">
+          <h2 className="font-display font-semibold text-parchment">Teams</h2>
           <button
             onClick={onAddTeam}
-            className="bg-amber-300 p-1 rounded hover:bg-amber-600"
+            className="bg-brass hover:bg-brass-light text-inkwell text-sm font-semibold px-3 py-1.5 rounded-md transition-colors"
           >
-            Add
+            Add Team
           </button>
         </div>
         {/* For the teams */}
-        {groupedTeams.length > 0 ? (
-          groupedTeams.map((team, index) => (
-            <TeamEditor
-              key={team.team_id || index}
-              teamID={team.team_id}
-              teamName={team.team_name}
-              members={team.members}
-            />
-          ))
-        ) : (
-          <h1>No teams created</h1>
-        )}
+        <div className="p-3 flex flex-col gap-3">
+          {groupedTeams.length > 0 ? (
+            groupedTeams.map((team, index) => (
+              <TeamEditor
+                key={team.team_id || index}
+                teamID={team.team_id}
+                teamName={team.team_name}
+                members={team.members}
+              />
+            ))
+          ) : (
+            <p className="text-parchment/40 text-sm italic p-2">No teams created</p>
+          )}
+        </div>
       </div>
     </div>
   );

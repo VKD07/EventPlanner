@@ -1,25 +1,25 @@
 const TeamDetails = ({ teamName, members }) => {
 
   if (!teamName) {
-    return (
-      <div className="bg-amber-500 rounded-2xl p-4">
-        <h1>No Team!</h1>
-      </div>
-    );
+    return null;
   }
 
   return (
-    <div className="bg-amber-500 rounded-2xl p-4">
-      <h2 className="pb-2 font-semibold">Team: {teamName}</h2>
-      <div className="border-b-2 mb-2" />
+    <div className="bg-pew-light/40 border border-brass/10 rounded-xl p-4 hover:border-brass/30 hover:bg-pew-light transition-colors">
+      <h3 className="font-display font-semibold text-parchment text-sm mb-3">{teamName}</h3>
 
-      <div className="flex flex-col gap-1">
+      <div className="space-y-2">
         {members.length > 0 ? (
           members.map(m => (
-            <span key={m.id}>{m.name}</span>
+            <div key={m.id} className="flex items-center gap-2 text-sm text-parchment/80">
+              <div className="w-6 h-6 bg-brass/15 rounded-full flex items-center justify-center text-xs font-medium text-brass-light border border-brass/30">
+                {m.name.charAt(0).toUpperCase()}
+              </div>
+              <span>{m.name}</span>
+            </div>
           ))
         ) : (
-          <h1 className="italic opacity-70">No members!</h1>
+          <p className="text-xs text-parchment/40 italic">No members assigned</p>
         )}
       </div>
     </div>

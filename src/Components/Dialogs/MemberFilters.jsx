@@ -16,18 +16,19 @@ const MemberFilters = ({ categoryName, filterOptions, selectedFilters }) => {
   }
 
   return (
-    <div className="bg-amber-400 rounded p-2">
-      <span className="font-bold">{categoryName}: </span>
-      <div className="border-1 my-1" />
-      <div className="grid grid-cols-2">
+    <div className="bg-pew rounded-md p-2 border border-brass/15">
+      <span className="font-semibold text-parchment text-sm">{categoryName}</span>
+      <div className="border-t border-brass/15 my-1.5" />
+      <div className="grid grid-cols-2 gap-y-1">
         {filterOptions.map((filter, index) => (
-          <div key={index} className="flex flex-row flex-wrap gap-1">
+          <div key={index} className="flex flex-row flex-wrap items-center gap-1.5">
             <input
               type="checkbox"
+              className="accent-brass"
               checked={selectedValues.includes(filter.name)}
               onChange={() => handleChecked(filter.name)}
             />
-            <label>{filter.name}</label>
+            <label className="text-parchment/70 text-xs">{filter.name}</label>
           </div>
         ))}
       </div>

@@ -1,7 +1,6 @@
 import React from "react";
 import CustomizedAgenda from "./CustomizedAgenda";
 import { useNavigate } from "react-router-dom";
-import { useEventsContext } from "../../Context/EventDataContext";
 import {
   useGetEventFlowByID,
   useAddNewAgendaItem,
@@ -52,26 +51,31 @@ const CustomizedEventFlow = ({ selectedEvent }) => {
   };
 
   return (
-    <div className="bg-amber-50 rounded-2xl flex flex-col gap-2">
-      <div className="flex flex-col p-5 gap-2">
-        <span>Title: {selectedEvent.title}</span>
-        <span>Description: {selectedEvent.description}</span>
-        <span>Date: {selectedEvent.eventDate}</span>
-        <span>Location: {selectedEvent.location}</span>
+    <div className="bg-paper rounded-2xl flex flex-col gap-2 border-t-4 border-brass shadow-xl">
+      <div className="flex flex-col md:flex-row md:items-start md:justify-between p-6 gap-4 border-b border-dashed border-inkwell/15">
+        <div className="flex flex-col gap-1">
+          <span className="font-display text-2xl font-semibold text-inkwell">{selectedEvent.title}</span>
+          {selectedEvent.description && (
+            <span className="text-inkwell/60 text-sm">{selectedEvent.description}</span>
+          )}
+          <span className="font-mono text-xs text-inkwell/50 mt-1">
+            {selectedEvent.eventDate} · {selectedEvent.location}
+          </span>
+        </div>
         <button
           onClick={handleGoBackClick}
-          className="bg-amber-900 rounded p-2 hover:bg-amber-500 w-24"
+          className="text-sm font-medium text-inkwell/60 hover:text-inkwell border border-inkwell/15 hover:border-brass rounded-md px-3 py-1.5 transition-colors whitespace-nowrap"
         >
-          Go Back
+          ← Back to dashboard
         </button>
       </div>
 
-      <div>
-        <span className="font-bold">Event Flow:</span>
+      <div className="p-6 pt-4">
+        <span className="text-[11px] font-semibold uppercase tracking-wide text-inkwell/40">Order of Service</span>
         {!eventsFlow?.length ? (
-          <p className="text-sm text-gray-600">No agenda items yet.</p>
+          <p className="text-sm text-inkwell/40 italic mt-2">No agenda items yet.</p>
         ) : (
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 mt-3">
             {eventsFlow.map((agenda) => (
               <CustomizedAgenda
                 key={agenda.id}
@@ -83,9 +87,9 @@ const CustomizedEventFlow = ({ selectedEvent }) => {
         )}
         <button
           onClick={addAgenda}
-          className="mt-5 border-2 border-dashed border-amber-500 py-1 px-5 rounded-2xl w-full h-10 hover:bg-amber-200 text-amber-500"
+          className="mt-4 border-2 border-dashed border-brass/50 py-2 px-5 rounded-xl w-full hover:bg-brass/10 text-brass font-medium transition-colors"
         >
-          ADD
+          + Add agenda item
         </button>
       </div>
     </div>

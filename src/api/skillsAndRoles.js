@@ -1,4 +1,5 @@
 import { supabase } from "./supabase";
+import { randomUUID } from "../utils/uuid";
 
 export async function getSkillsAndRoles() {
   try {
@@ -11,8 +12,8 @@ export async function getSkillsAndRoles() {
     if (rolesRes.error) throw rolesRes.error;
 
     const memberFilters = [
-      { id: crypto.randomUUID(), name: "Skills", elements: skillsRes.data },
-      { id: crypto.randomUUID(), name: "Role", elements: rolesRes.data },
+      { id: randomUUID(), name: "Skills", elements: skillsRes.data },
+      { id: randomUUID(), name: "Role", elements: rolesRes.data },
     ];
 
     return { data: memberFilters, error: null };
@@ -20,4 +21,30 @@ export async function getSkillsAndRoles() {
     console.error("Error fetching skills and roles:", error.message);
     return { data: null, error };
   }
+}
+
+export async function createSkill(name) {
+  const { data, error } = await supabase
+    .from("skills")
+    .insert({ name })
+    .select("id, name")
+    .single();
+
+  if (error) {
+    throw new Error("Failed to create skill in Supabase: " + error.message);
+  }
+  return data;
+}
+
+export async function createRole(name) {
+  const { data, error } = await supabase
+    .from("roles")
+    .insert({ name })
+    .select("id, name")
+    .single();
+
+  if (error) {
+    throw new Error("Failed to create role in Supabase: " + error.message);
+  }
+  return data;
 }

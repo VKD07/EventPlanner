@@ -1,5 +1,4 @@
 import ConsoleDebug from "../ConsoleDebug";
-import { useEventsContext } from "../../Context/EventDataContext";
 
 const Event = ({ event, clickedEvent, selectedEvent }) => {
 
@@ -10,28 +9,35 @@ const Event = ({ event, clickedEvent, selectedEvent }) => {
       onClick={() => {
         clickedEvent(event);
       }}
-      className={
-        "w-full text-left border border-gray-300 rounded-2xl px-3 py-4 mb-2 bg-blue-400 hover:bg-blue-500 transition" +
-        (selectedEvent?.id === event.id ? " ring-2 ring-blue-800" : "")
-      }
+      className={`
+        w-full text-left rounded-xl px-4 py-3 cursor-pointer
+        transition-all duration-200
+        ${selectedEvent?.id === event.id
+          ? "bg-brass/15 border-2 border-brass shadow-lg shadow-brass/10"
+          : "bg-pew-light/40 border border-brass/10 hover:border-brass/30 hover:bg-pew-light"
+        }
+      `}
     >
       <ConsoleDebug componentName="Event" />
 
-      <h2 className="text-2xl lg:text-[15px] font-bold">{event.title}</h2>
+      <h3 className="text-sm font-semibold text-parchment mb-1 line-clamp-1">
+        {event.title}
+      </h3>
 
-      <div className="flex justify-between">
-        <p className="text-gray-600 mb-1 text-[13px]">
-          {event.eventDate}
-        </p>
-
-        <h3 className="text-2xl lg:text-[12px] italic text-gray-800">
-          {event.location}
-        </h3>
+      <div className="flex items-center justify-between text-xs text-parchment/50 font-mono mb-2">
+        <span className="flex items-center gap-1">
+          {new Date(event.eventDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+        </span>
+        {event.location && (
+          <span className="flex items-center gap-1 line-clamp-1">
+            {event.location}
+          </span>
+        )}
       </div>
 
-      <div className="border-b-1" />
-
-      <p className="text-gray-800 pt-2 text-[11px]">{event.description}</p>
+      {event.description && (
+        <p className="text-xs text-parchment/60 line-clamp-2">{event.description}</p>
+      )}
     </div>
   );
 };

@@ -6,11 +6,11 @@ function EventLayout() {
   return (
     <>
       <Header />
-      <div className="grid gap-7 grid-cols-[5%_93%]">
-        <div>
+      <div className="flex lg:grid lg:gap-7 lg:grid-cols-[60px_1fr]">
+        <div className="hidden lg:block">
           <EventNavigation />
         </div>
-        <div>
+        <div className="w-full">
           <Outlet />
         </div>
       </div>
